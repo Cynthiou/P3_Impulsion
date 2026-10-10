@@ -1,4 +1,4 @@
-import type { SessionMonthGroup as MonthGroup } from "../../utils/groupSessionsByMonth";
+import type { MonthGroup } from "../../utils/groupSessionsByMonth";
 import SessionHistoryCard from "./SessionHistoryCard";
 
 type SessionMonthGroupProps = {
@@ -9,7 +9,7 @@ const SessionMonthGroup = ({ group }: SessionMonthGroupProps) => {
   return (
     <section>
       <h2 className="font-semibold text-accent text-xs uppercase tracking-widest">
-        {group.label}
+        {group.title}
       </h2>
 
       <ul className="mt-3 grid gap-3">

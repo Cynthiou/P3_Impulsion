@@ -669,7 +669,7 @@ describe("US23 - Historique des séances", () => {
     expect(params).toEqual([1]);
   });
 
-  test("renvoie un tableau vide sans interroger les exercices ni les séries", async () => {
+  test("renvoie un tableau vide quand il n'y a aucune séance terminée", async () => {
     const queryMock = jest
       .spyOn(databaseClient, "query")
       .mockResolvedValue([[], []] as never);
@@ -680,68 +680,21 @@ describe("US23 - Historique des séances", () => {
     expect(queryMock).toHaveBeenCalledTimes(1);
   });
 
-  test("compte les exercices et calcule le volume séance par séance", async () => {
-    jest
-      .spyOn(databaseClient, "query")
-      .mockResolvedValueOnce([
-        [
-          { id: 10, date: "2026-10-03T16:00:00.000Z", durationSeconds: 3660 },
-          { id: 11, date: "2026-09-28T16:00:00.000Z", durationSeconds: 1800 },
-        ],
-        [],
-      ] as never)
-      .mockResolvedValueOnce([
-        [
-          { workout_session_id: 10 },
-          { workout_session_id: 10 },
-          { workout_session_id: 11 },
-        ],
-        [],
-      ] as never)
-      .mockResolvedValueOnce([
-        [
-          { workout_session_id: 10, repetitions: 10, weight_kg: "40.00" },
-          { workout_session_id: 10, repetitions: 8, weight_kg: "50.00" },
-          { workout_session_id: 11, repetitions: 12, weight_kg: "20.00" },
-        ],
-        [],
-      ] as never);
+  test("renvoie la date et la durée de chaque séance", async () => {
+    jest.spyOn(databaseClient, "query").mockResolvedValueOnce([
+      [
+        { id: 10, date: "2026-10-03T16:00:00.000Z", durationSeconds: 3660 },
+        { id: 11, date: "2026-09-28T16:00:00.000Z", durationSeconds: 1800 },
+      ],
+      [],
+    ] as never);
 
     const sessions = await workoutSessionRepository.readAllCompleted(1);
 
     expect(sessions).toEqual([
-      {
-        id: 10,
-        date: "2026-10-03T16:00:00.000Z",
-        durationSeconds: 3660,
-        exerciseCount: 2,
-        totalVolumeKg: 800,
-      },
-      {
-        id: 11,
-        date: "2026-09-28T16:00:00.000Z",
-        durationSeconds: 1800,
-        exerciseCount: 1,
-        totalVolumeKg: 240,
-      },
+      { id: 10, date: "2026-10-03T16:00:00.000Z", durationSeconds: 3660 },
+      { id: 11, date: "2026-09-28T16:00:00.000Z", durationSeconds: 1800 },
     ]);
-  });
-
-  test("exclut les séries non validées du calcul du volume", async () => {
-    const queryMock = jest
-      .spyOn(databaseClient, "query")
-      .mockResolvedValueOnce([
-        [{ id: 10, date: "2026-10-03", durationSeconds: 60 }],
-        [],
-      ] as never)
-      .mockResolvedValueOnce([[], []] as never)
-      .mockResolvedValueOnce([[], []] as never);
-
-    await workoutSessionRepository.readAllCompleted(1);
-
-    const [setSql] = queryMock.mock.calls[2];
-
-    expect(String(setSql)).toMatch(/is_completed\s*=\s*TRUE/);
   });
 
   test("renvoie l'historique de l'utilisateur connecté", async () => {
@@ -750,8 +703,6 @@ describe("US23 - Historique des séances", () => {
         id: 10,
         date: "2026-10-03T16:00:00.000Z",
         durationSeconds: 3660,
-        exerciseCount: 2,
-        totalVolumeKg: 800,
       },
     ] as never);
 

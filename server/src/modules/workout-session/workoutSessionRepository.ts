@@ -36,11 +36,15 @@ class WorkoutSessionRepository {
   }
 
   async readAllCompleted(userId: number) {
-    const [sessionRows] = await databaseClient.query<Rows>(
+    const [rows] = await databaseClient.query<Rows>(
       `SELECT
         id,
         started_at AS date,
-        TIMESTAMPDIFF(SECOND, started_at, ended_at) AS durationSeconds
+        TIMESTAMPDIFF(SECOND, started_at, ended_at) AS durationSeconds,
+        (SELECT COUNT(*)
+         FROM workout_session_exercise
+         WHERE workout_session_exercise.workout_session_id = workout_session.id
+        ) AS exerciseCount
        FROM workout_session
        WHERE user_id = ?
          AND status = 'completed'
@@ -48,55 +52,7 @@ class WorkoutSessionRepository {
       [userId],
     );
 
-    if (sessionRows.length === 0) {
-      return [];
-    }
-
-    const sessionsId = sessionRows.map((session) => session.id);
-
-    const [exerciseRows] = await databaseClient.query<Rows>(
-      `SELECT workout_session_id
-       FROM workout_session_exercise
-       WHERE workout_session_id IN (?)`,
-      [sessionsId],
-    );
-
-    const [setRows] = await databaseClient.query<Rows>(
-      `SELECT
-        workout_session_exercise.workout_session_id,
-        exercise_set.repetitions,
-        exercise_set.weight_kg
-       FROM exercise_set
-       JOIN workout_session_exercise
-         ON workout_session_exercise.id = exercise_set.workout_session_exercise_id
-       WHERE workout_session_exercise.workout_session_id IN (?)
-         AND exercise_set.is_completed = TRUE`,
-      [sessionsId],
-    );
-
-    return sessionRows.map((session) => {
-      let exerciseCount = 0;
-
-      for (const exercise of exerciseRows) {
-        if (exercise.workout_session_id === session.id) {
-          exerciseCount += 1;
-        }
-      }
-      let totalVolumeKg = 0;
-
-      for (const set of setRows) {
-        if (set.workout_session_id === session.id) {
-          totalVolumeKg += Number(set.repetitions) * Number(set.weight_kg);
-        }
-      }
-      return {
-        id: session.id,
-        date: session.date,
-        durationSeconds: Number(session.durationSeconds),
-        exerciseCount,
-        totalVolumeKg,
-      };
-    });
+    return rows;
   }
 
   async read(sessionId: number, userId: number) {

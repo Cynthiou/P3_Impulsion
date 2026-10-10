@@ -39,7 +39,6 @@ export type WorkoutSessionHistory = {
   date: string;
   durationSeconds: number;
   exerciseCount: number;
-  totalVolumeKg: number;
 };
 
 export type CompletedSet = {

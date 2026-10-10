@@ -4,12 +4,19 @@ import type { WorkoutSessionHistory } from "../../types/workoutSession";
 import { formatDuration } from "../../utils/formatDuration";
 import { formatFullDate } from "../../utils/formatSessionDate";
 
-type WorkoutSessionHistoryProps = {
+type SessionHistoryCardProps = {
   session: WorkoutSessionHistory;
 };
 
-const SessionHistoryCard = ({ session }: WorkoutSessionHistoryProps) => {
+const SessionHistoryCard = ({ session }: SessionHistoryCardProps) => {
   const formattedDate = formatFullDate(session.date);
+  const durationText = formatDuration(session.durationSeconds);
+
+  let exerciseText = `${session.exerciseCount} exercices`;
+
+  if (session.exerciseCount <= 1) {
+    exerciseText = `${session.exerciseCount} exercice`;
+  }
 
   return (
     <Link
@@ -20,9 +27,7 @@ const SessionHistoryCard = ({ session }: WorkoutSessionHistoryProps) => {
         {formattedDate}
       </h3>
       <p className="col-start-1 mt-0.5 text-base-content/75 text-sm">
-        {formatDuration(session.durationSeconds)} · {session.exerciseCount}{" "}
-        {session.exerciseCount <= 1 ? "exercice" : "exercices"} ·{" "}
-        {session.totalVolumeKg.toLocaleString("fr-FR")} kg
+        {durationText} · {exerciseText}
       </p>
       <ChevronRightIcon
         aria-hidden="true"

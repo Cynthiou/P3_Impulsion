@@ -3,9 +3,4 @@ export type ReferenceItem = {
   name: string;
 };
 
-export type HistoryFilter = "all" | "month" | "week";
-
-export type HistoryFiltersProps = {
-  filter: HistoryFilter;
-  setFilter: (value: HistoryFilter) => void;
-};
+export type HistoryFilter = "all" | "month" | "sevenDays";

@@ -1,4 +1,9 @@
-import type { HistoryFiltersProps } from "../../types/filters";
+import type { HistoryFilter } from "../../types/filters";
+
+type HistoryFiltersProps = {
+  filter: HistoryFilter;
+  setFilter: (value: HistoryFilter) => void;
+};
 
 const BUTTON_STYLE =
   "rounded-field px-4 py-1.5 font-semibold text-sm transition-colors bg-base-200 text-base-content/75 hover:bg-base-300 focus-visible:outline-2 focus-visible:outline-info focus-visible:outline-offset-2 disabled:cursor-default disabled:bg-secondary disabled:text-secondary-content";
@@ -6,7 +11,7 @@ const BUTTON_STYLE =
 const HistoryFilters = ({ filter, setFilter }: HistoryFiltersProps) => {
   const allIsActive = filter === "all";
   const monthIsActive = filter === "month";
-  const weekIsActive = filter === "week";
+  const sevenDaysIsActive = filter === "sevenDays";
 
   return (
     <div className="mt-6 grid grid-cols-3 gap-2">
@@ -28,11 +33,11 @@ const HistoryFilters = ({ filter, setFilter }: HistoryFiltersProps) => {
       </button>
       <button
         type="button"
-        disabled={weekIsActive}
-        onClick={() => setFilter("week")}
+        disabled={sevenDaysIsActive}
+        onClick={() => setFilter("sevenDays")}
         className={BUTTON_STYLE}
       >
-        Cette semaine
+        7 derniers jours
       </button>
     </div>
   );
