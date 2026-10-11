@@ -264,13 +264,20 @@ function SessionId() {
 
   const isPrepared = session.status === "prepared" && !isInProgress;
 
-  const hasCompletedSets = Number(session.completedSetCount ?? 0) > 0;
+  let hasCompletedSets = false;
 
-  const startedAt = isCurrentSession
-    ? currentSession.startedAt
-    : session.startedAt;
+  if (
+    session.completedSetCount !== undefined &&
+    session.completedSetCount > 0
+  ) {
+    hasCompletedSets = true;
+  }
 
-  const showChrono = isInProgress && startedAt !== null;
+  let startedAt = session.startedAt;
+
+  if (isCurrentSession) {
+    startedAt = currentSession.startedAt;
+  }
 
   return (
     <div className="w-full max-w-3xl pb-32 md:py-4 md:pb-4 lg:px-4">
@@ -318,7 +325,7 @@ function SessionId() {
       <div className="mt-4 flex items-center justify-between gap-3 lg:mt-5">
         <p className="min-w-0 font-semibold capitalize">{formattedDate}</p>
 
-        {showChrono && <Chrono startedAt={startedAt} />}
+        {isInProgress && startedAt !== null && <Chrono startedAt={startedAt} />}
 
         {!isInProgress && (
           <span className="inline-flex shrink-0 whitespace-nowrap rounded-full bg-info/15 px-2.5 py-1 font-semibold text-[11px] text-info uppercase tracking-wide">
