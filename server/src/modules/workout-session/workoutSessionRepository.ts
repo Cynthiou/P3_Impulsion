@@ -426,7 +426,7 @@ class WorkoutSessionRepository {
         id,
         status,
         started_at AS date,
-        TIMESTAMPDIFF(SECOND, started_at, NOW()) AS durationSeconds
+        LEAST(TIMESTAMPDIFF(SECOND, started_at, NOW()), 6 * 60 * 60) AS durationSeconds
        FROM workout_session
        WHERE id = ?
          AND user_id = ?`,
@@ -445,7 +445,7 @@ class WorkoutSessionRepository {
       [sessionId],
     );
     const [setRows] = await databaseClient.query<Rows>(
-      `SELECT exercise_set.repetitions, exercise_set.weight_kg
+      `SELECT exercise_set.repetitions, exercise_set.weight_kg AS weightKg
        FROM exercise_set
        JOIN workout_session_exercise
          ON workout_session_exercise.id = exercise_set.workout_session_exercise_id
@@ -453,26 +453,15 @@ class WorkoutSessionRepository {
          AND exercise_set.is_completed = TRUE`,
       [sessionId],
     );
-    let totalVolumeKg = 0;
-
-    for (const set of setRows) {
-      totalVolumeKg += Number(set.repetitions) * Number(set.weight_kg);
-    }
-    const maxSixHours = 6 * 60 * 60;
-    let durationSeconds = Number(session.durationSeconds);
-
-    if (durationSeconds > maxSixHours) {
-      durationSeconds = maxSixHours;
-    }
 
     return {
       id: session.id,
       status: session.status,
       date: session.date,
-      durationSeconds,
+      durationSeconds: Number(session.durationSeconds),
       exerciseCount: Number(exerciseRows[0].exerciseCount),
       completedSetCount: setRows.length,
-      totalVolumeKg,
+      sets: setRows,
     };
   }
 

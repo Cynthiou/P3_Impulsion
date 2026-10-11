@@ -31,7 +31,10 @@ export type WorkoutSessionSummary = {
   durationSeconds: number;
   completedSetCount: number;
   exerciseCount: number;
-  totalVolumeKg: number;
+  sets: {
+    repetitions: number | null;
+    weightKg: number | string | null;
+  }[];
 };
 
 export type WorkoutSessionHistory = {

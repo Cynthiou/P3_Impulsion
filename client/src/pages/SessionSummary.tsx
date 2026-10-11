@@ -7,6 +7,7 @@ import InfoCircleIcon from "../assets/icons/etats/info-circle.svg?react";
 import { useMessages } from "../contexts/MessageContext";
 import useCompleteSession from "../hooks/workout-session/useCompleteSession";
 import useSessionSummary from "../hooks/workout-session/useSessionSummary";
+import { calculateTotalVolume } from "../utils/calculateTotalVolume";
 import { formatDuration } from "../utils/formatDuration";
 import { formatSessionDateLong } from "../utils/formatSessionDate";
 
@@ -65,6 +66,9 @@ function SessionSummary() {
   if (completeLoading) {
     buttonText = "Enregistrement...";
   }
+
+  const totalVolumeKg = calculateTotalVolume(summary.sets);
+  const volumeText = `${totalVolumeKg.toLocaleString("fr-FR")} kg`;
 
   return (
     <main className="mx-auto flex min-h-[calc(100dvh-9rem)] w-full max-w-xl flex-col gap-6 pb-24">
@@ -130,7 +134,7 @@ function SessionSummary() {
             Volume total
           </dt>
           <dd className="font-display font-extrabold text-2xl italic tabular-nums">
-            {summary.totalVolumeKg.toLocaleString("fr-FR")} kg
+            {volumeText}
           </dd>
         </div>
       </dl>
