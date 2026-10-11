@@ -75,24 +75,19 @@ const startWorkoutSession = async (sessionId: number) => {
     `${API_URL}/api/workout-sessions/${sessionId}/start`,
     { method: "PATCH", credentials: "include" },
   );
+
   if (response.status === 409) {
-    let currentSessionId = null;
+    const data = await response.json();
+    const currentSessionId = data.currentSessionId;
 
-    try {
-      const conflict = await response.json();
-      currentSessionId = conflict.currentSessionId;
-    } catch {
-      // la réponse ne contient pas de JSON : on garde null
-    }
-
-    return { result: "conflict", currentSessionId: currentSessionId };
+    return { status: "conflict", currentSessionId: currentSessionId };
   }
+
   if (!response.ok) {
     throw new Error("Impossible de démarrer la séance");
   }
-  return {
-    result: "started",
-  };
+
+  return { status: "started" };
 };
 
 const completeWorkoutSession = async (sessionId: number): Promise<void> => {
