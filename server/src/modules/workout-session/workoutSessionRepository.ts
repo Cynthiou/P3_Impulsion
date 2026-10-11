@@ -458,11 +458,12 @@ class WorkoutSessionRepository {
     for (const set of setRows) {
       totalVolumeKg += Number(set.repetitions) * Number(set.weight_kg);
     }
-    const maxDurationSeconds = 6 * 60 * 60;
-    const durationSeconds = Math.min(
-      Number(session.durationSeconds),
-      maxDurationSeconds,
-    );
+    const maxSixHours = 6 * 60 * 60;
+    let durationSeconds = Number(session.durationSeconds);
+
+    if (durationSeconds > maxSixHours) {
+      durationSeconds = maxSixHours;
+    }
 
     return {
       id: session.id,
