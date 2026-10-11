@@ -257,17 +257,6 @@ const browse: RequestHandler = async (req, res, next) => {
   }
 };
 
-const browseHistory: RequestHandler = async (req, res, next) => {
-  try {
-    const userId = getCurrentUserId(req);
-    const sessions = await workoutSessionRepository.readAllCompleted(userId);
-
-    res.json(sessions);
-  } catch (err) {
-    next(err);
-  }
-};
-
 const read: RequestHandler = async (req, res, next) => {
   try {
     const userId = getCurrentUserId(req);
@@ -660,7 +649,6 @@ export default {
   add,
   addExercises,
   browse,
-  browseHistory,
   read,
   readCurrent,
   readDetail,

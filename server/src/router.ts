@@ -3,6 +3,7 @@ import authenticate from "./middlewares/authMiddleware";
 import authActions from "./modules/auth/authActions";
 import exerciseActions from "./modules/exercise/exerciseActions";
 import filtersActions from "./modules/filters/filtersActions";
+import historyActions from "./modules/history/historyActions";
 import workoutSessionActions from "./modules/workout-session/workoutSessionActions";
 import workoutTemplateActions from "./modules/workout-template/workoutTemplateActions";
 
@@ -36,10 +37,7 @@ router.delete(
 );
 router.get("/api/workout-sessions", workoutSessionActions.browse);
 router.get("/api/workout-sessions/current", workoutSessionActions.readCurrent);
-router.get(
-  "/api/workout-sessions/history",
-  workoutSessionActions.browseHistory,
-);
+router.get("/api/workout-sessions/history", historyActions.browseHistory);
 router.get("/api/workout-sessions/:id", workoutSessionActions.read);
 router.get(
   "/api/workout-sessions/:id/summary",
