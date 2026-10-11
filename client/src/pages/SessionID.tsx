@@ -8,6 +8,7 @@ import AbandonSessionModal from "../components/AbandonSessionModal";
 import Chrono from "../components/Chrono";
 import ConflictSessionModal from "../components/ConflictSessionModal";
 import DeleteSessionModal from "../components/DeleteSessionModal";
+import ExerciseDetailSheet from "../components/ExerciseDetailSheet";
 import PreparedExerciseCard from "../components/PreparedExerciseCard";
 import CompletedSessionView from "../components/session-detail/CompletedSessionView";
 import { CurrentSessionContext } from "../contexts/CurrentSessionContext";
@@ -32,6 +33,10 @@ function SessionId() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isAbandonModalOpen, setIsAbandonModalOpen] = useState(false);
   const [userClosedConflictModal, setUserClosedConflictModal] = useState(false);
+  const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(
+    null,
+  );
+  const [openedExerciseId, setOpenedExerciseId] = useState<number | null>(null);
 
   const {
     reorderSessionExercises,
@@ -405,6 +410,9 @@ function SessionId() {
                   handleRemoveExercise(exercise.sessionExerciseId)
                 }
                 canManageSets={isInProgress}
+                onOpenDetail={() => setSelectedExerciseId(exercise.id)}
+                isOpen={openedExerciseId === exercise.sessionExerciseId}
+                onOpen={() => setOpenedExerciseId(exercise.sessionExerciseId)}
               />
             ))}
           </div>
@@ -427,7 +435,7 @@ function SessionId() {
               type="button"
               onClick={handleStart}
               disabled={exerciseCount === 0 || startLoading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary bg-primary px-4 py-3.5 text-center font-semibold text-primary-content text-sm leading-tight transition-colors duration-200 sm:text-sm md:px-5 hover:border-info hover:bg-info hover:text-white focus-visible:outline-2 focus-visible:outline-info focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:border-base-300 disabled:bg-base-200 disabled:text-base-content/35 disabled:hover:border-base-300 disabled:hover:bg-base-200 lg:w-auto"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary bg-primary px-4 py-3.5 text-center font-semibold text-primary-content text-sm leading-tight transition-colors duration-200 sm:text-sm md:px-5 hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-info focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:border-base-300 disabled:bg-base-200 disabled:text-base-content/35 disabled:hover:border-base-300 disabled:hover:bg-base-200 lg:w-auto"
             >
               {startLoading ? "Démarrage..." : "Démarrer la séance"}
             </button>
@@ -473,6 +481,11 @@ function SessionId() {
           onAbandon={handleAbandonCurrentSession}
         />
       )}
+
+      <ExerciseDetailSheet
+        exerciseId={selectedExerciseId}
+        onClose={() => setSelectedExerciseId(null)}
+      />
     </div>
   );
 }

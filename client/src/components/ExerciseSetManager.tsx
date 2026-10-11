@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PlusIcon from "../assets/icons/actions/plus.svg?react";
 import { useMessages } from "../contexts/MessageContext";
 import useExerciseSets from "../hooks/workout-session/useExerciseSets";
 import type { CreateExerciseSet, ExerciseSet } from "../types/workoutSession";
@@ -71,7 +72,7 @@ function ExerciseSetForm({
 
   return (
     <form onSubmit={handleSubmit} className="mt-4 space-y-3">
-      <h5 className="font-semibold text-primary text-sm">Série {setNumber}</h5>
+      <h5 className="font-semibold text-info text-sm">Série {setNumber}</h5>
 
       <div className="grid grid-cols-3 gap-2">
         <label className="flex flex-col gap-1 text-xs">
@@ -122,7 +123,7 @@ function ExerciseSetForm({
         disabled={saving}
         className="w-full rounded-lg border border-primary bg-primary px-4 py-2.5 font-semibold text-primary-content text-sm transition-colors hover:border-info hover:bg-info disabled:cursor-wait disabled:border-base-300 disabled:bg-base-300 disabled:text-base-content/50"
       >
-        {saving ? "Enregistrement..." : "+ Ajouter une série"}
+        {saving ? "Enregistrement..." : "Enregistrer la série"}
       </button>
     </form>
   );
@@ -136,6 +137,18 @@ function ExerciseSetManager({
 }: ExerciseSetManagerProps) {
   const { sets, loading, saving, error, addSet } =
     useExerciseSets(sessionExerciseId);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
+  const handleAdd = async (values: CreateExerciseSet) => {
+    const newSet = await addSet(values);
+
+    if (newSet !== null) {
+      setIsFormOpen(false);
+    }
+
+    return newSet;
+  };
+
   const previousSet = sets.at(-1);
   const nextSetNumber = (previousSet?.setNumber ?? 0) + 1;
   const suggestedValues = previousSet ?? {
@@ -157,39 +170,69 @@ function ExerciseSetManager({
           Aucune série enregistrée
         </p>
       ) : (
-        <ul className="mt-3 space-y-2">
-          {sets.map((set) => (
-            <li
-              key={set.id}
-              className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-base-300/50 px-3 py-2 text-sm"
-            >
-              <span className="font-semibold">Série {set.setNumber}</span>
-              {set.repetitions !== null && (
-                <span>{set.repetitions} répétitions</span>
-              )}
-              {set.weightKg !== null && (
-                <span>{Number(set.weightKg).toLocaleString("fr-FR")} kg</span>
-              )}
-              {set.durationSeconds !== null && (
-                <span>{set.durationSeconds} s</span>
-              )}
-              <span className="ml-auto text-base-content/60 text-xs">
-                {set.isCompleted ? "Réalisée" : "Enregistrée"}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <table className="mt-3 w-full text-sm">
+          <caption className="sr-only">Séries enregistrées</caption>
+          <thead>
+            <tr className="text-base-content/60 text-xs uppercase tracking-wide">
+              <th scope="col" className="py-2 pr-3 text-left font-semibold">
+                N°
+              </th>
+              <th scope="col" className="py-2 pr-3 text-left font-semibold">
+                Reps
+              </th>
+              <th scope="col" className="py-2 pr-3 text-left font-semibold">
+                Charge
+              </th>
+              <th scope="col" className="py-2 text-left font-semibold">
+                Durée
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {sets.map((set) => (
+              <tr key={set.id} className="border-base-300 border-t">
+                <td className="py-2.5 pr-3 text-base-content/60">
+                  {set.setNumber}
+                </td>
+                <td className="py-2.5 pr-3 font-semibold">
+                  {set.repetitions ?? "–"}
+                </td>
+                <td className="py-2.5 pr-3 font-semibold">
+                  {set.weightKg === null
+                    ? "–"
+                    : `${Number(set.weightKg).toLocaleString("fr-FR")} kg`}
+                </td>
+                <td className="py-2.5 font-semibold">
+                  {set.durationSeconds === null
+                    ? "–"
+                    : `${set.durationSeconds} s`}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
 
-      {!loading && (
+      {!loading && isFormOpen && (
         <ExerciseSetForm
           key={nextSetNumber}
           setNumber={nextSetNumber}
           previousSet={suggestedValues}
           saving={saving}
           apiError={error}
-          onAdd={addSet}
+          onAdd={handleAdd}
         />
+      )}
+
+      {!loading && !isFormOpen && (
+        <button
+          type="button"
+          onClick={() => setIsFormOpen(true)}
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-info/40 border-dashed py-2.5 font-semibold text-info text-sm transition hover:border-info hover:bg-info/10"
+        >
+          <PlusIcon aria-hidden="true" className="size-4" />
+          Ajouter une série
+        </button>
       )}
     </div>
   );
