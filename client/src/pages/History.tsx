@@ -2,7 +2,7 @@ import { useState } from "react";
 import HistoryFilters from "../components/history/HistoryFilters";
 import HistoryTabs from "../components/history/HistoryTabs";
 import SessionMonthGroup from "../components/history/SessionMonthGroup";
-import useHistorySessions from "../hooks/workout-session/useHistorySessions";
+import useHistorySessions from "../hooks/history/useHistorySessions";
 import type { HistoryFilter } from "../types/filters";
 import { groupSessionsByMonth } from "../utils/groupSessionsByMonth";
 

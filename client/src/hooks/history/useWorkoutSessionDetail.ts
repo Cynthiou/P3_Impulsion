@@ -8,7 +8,7 @@ const useWorkoutSessionDetail = (sessionId: number) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadSession = async () => {
+    const loadSessionDetail = async () => {
       try {
         const sessionData =
           await historyService.getWorkoutSessionDetail(sessionId);
@@ -20,7 +20,7 @@ const useWorkoutSessionDetail = (sessionId: number) => {
       }
     };
 
-    loadSession();
+    loadSessionDetail();
   }, [sessionId]);
 
   return { session, loading, error };

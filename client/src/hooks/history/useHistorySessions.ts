@@ -8,7 +8,7 @@ const useHistorySessions = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadSessions = async () => {
+    const loadCompletedSessions = async () => {
       setLoading(true);
       setError(null);
 
@@ -22,7 +22,7 @@ const useHistorySessions = () => {
       }
     };
 
-    loadSessions();
+    loadCompletedSessions();
   }, []);
 
   return { sessions, loading, error };

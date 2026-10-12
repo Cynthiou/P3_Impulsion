@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 
 import ChevronLeftIcon from "../../assets/icons/chevrons/chevron-left.svg?react";
-import useWorkoutSessionDetail from "../../hooks/workout-session/useWorkoutSessionDetail";
+import useWorkoutSessionDetail from "../../hooks/history/useWorkoutSessionDetail";
 import { calculateTotalVolume } from "../../utils/calculateTotalVolume";
 import { formatDuration } from "../../utils/formatDuration";
 import { formatFullDate } from "../../utils/formatSessionDate";
