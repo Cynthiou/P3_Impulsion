@@ -187,32 +187,6 @@ describe("US13 - Ajouter des exercices à une séance", () => {
     expect(queryMock.mock.calls[0][1]).toEqual([7]);
   });
 
-  test("construit l'URL de l'image des exercices de la séance", async () => {
-    jest.spyOn(workoutSessionRepository, "readSession").mockResolvedValue({
-      id: 7,
-    } as never);
-    jest
-      .spyOn(sessionExerciseRepository, "readSessionExercises")
-      .mockResolvedValue([
-        {
-          id: 3,
-          slug: "squat",
-          name: "Squat",
-          position: 1,
-        },
-      ] as never);
-    jest
-      .spyOn(workoutSessionRepository, "readCompletedSets")
-      .mockResolvedValue([] as never);
-
-    const response = await authenticatedRequest.get("/api/workout-sessions/7");
-
-    expect(response.status).toBe(200);
-    expect(response.body.exercises[0].imageUrl).toBe(
-      "/assets/images/squat.jpg",
-    );
-  });
-
   test.each([
     ["un body sans exerciseIds", {}],
     ["une liste vide", { exerciseIds: [] }],

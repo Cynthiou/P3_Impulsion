@@ -1,6 +1,5 @@
 import type { RequestHandler } from "express";
 import { getCurrentUserId } from "../../helpers/currentUser";
-import { buildImageUrl } from "../../helpers/imageUrl";
 import sessionExerciseRepository from "../session-exercise/sessionExerciseRepository";
 import workoutSessionRepository from "./workoutSessionRepository";
 
@@ -50,11 +49,6 @@ const read: RequestHandler = async (req, res, next) => {
     );
     const sets = await workoutSessionRepository.readCompletedSets(session.id);
 
-    const exercisesWithImages = exercises.map((exercise) => ({
-      ...exercise,
-      imageUrl: buildImageUrl(exercise.slug),
-    }));
-
     res.json({
       id: session.id,
       userId: session.userId,
@@ -64,7 +58,7 @@ const read: RequestHandler = async (req, res, next) => {
       status: session.status,
       exerciseCount: exercises.length,
       completedSetCount: sets.length,
-      exercises: exercisesWithImages,
+      exercises: exercises,
     });
   } catch (err) {
     next(err);
