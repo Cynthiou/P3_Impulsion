@@ -48,8 +48,7 @@ const read: RequestHandler = async (req, res, next) => {
     const exercises = await sessionExerciseRepository.readSessionExercises(
       session.id,
     );
-    const completedSetCount =
-      await workoutSessionRepository.readCompletedSetCount(session.id);
+    const sets = await workoutSessionRepository.readCompletedSets(session.id);
 
     const exercisesWithImages = exercises.map((exercise) => ({
       ...exercise,
@@ -64,7 +63,7 @@ const read: RequestHandler = async (req, res, next) => {
       endedAt: session.endedAt,
       status: session.status,
       exerciseCount: exercises.length,
-      completedSetCount: completedSetCount,
+      completedSetCount: sets.length,
       exercises: exercisesWithImages,
     });
   } catch (err) {
@@ -249,10 +248,9 @@ const complete: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    const completedSetCount =
-      await workoutSessionRepository.readCompletedSetCount(session.id);
+    const sets = await workoutSessionRepository.readCompletedSets(session.id);
 
-    if (completedSetCount === 0) {
+    if (sets.length === 0) {
       res.sendStatus(422);
       return;
     }

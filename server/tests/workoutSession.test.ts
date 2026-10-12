@@ -202,8 +202,8 @@ describe("US13 - Ajouter des exercices à une séance", () => {
         },
       ] as never);
     jest
-      .spyOn(workoutSessionRepository, "readCompletedSetCount")
-      .mockResolvedValue(0);
+      .spyOn(workoutSessionRepository, "readCompletedSets")
+      .mockResolvedValue([] as never);
 
     const response = await authenticatedRequest.get("/api/workout-sessions/7");
 
@@ -638,15 +638,15 @@ describe("US22 - Abandonner une séance", () => {
   test("transmet les paramètres dans le bon ordre pour abandonner", async () => {
     const queryMock = jest
       .spyOn(databaseClient, "query")
-      .mockResolvedValueOnce([[{ completedSetCount: 0 }], []] as never)
+      .mockResolvedValueOnce([[], []] as never)
       .mockResolvedValueOnce([{ affectedRows: 1 }, []] as never);
 
     await workoutSessionRepository.abandonSession(7, 1);
 
-    const [, countParams] = queryMock.mock.calls[0];
+    const [, setsParams] = queryMock.mock.calls[0];
     const [, updateParams] = queryMock.mock.calls[1];
 
-    expect(countParams).toEqual([7]);
+    expect(setsParams).toEqual([7]);
     expect(updateParams).toEqual([7, 1]);
   });
 });
