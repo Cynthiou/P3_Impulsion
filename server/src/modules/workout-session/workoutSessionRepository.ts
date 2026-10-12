@@ -11,6 +11,24 @@ class WorkoutSessionRepository {
     return result.insertId;
   }
 
+  async readSession(sessionId: number, userId: number) {
+    const [rows] = await databaseClient.query<Rows>(
+      `SELECT
+        id,
+        user_id AS userId,
+        created_at AS createdAt,
+        started_at AS startedAt,
+        ended_at AS endedAt,
+        status
+       FROM workout_session
+       WHERE id = ?
+         AND user_id = ?`,
+      [sessionId, userId],
+    );
+
+    return rows[0];
+  }
+
   async readPreparedSessions(userId: number) {
     const [rows] = await databaseClient.query<Rows>(
       `SELECT
@@ -32,38 +50,6 @@ class WorkoutSessionRepository {
     );
 
     return rows;
-  }
-
-  async readSession(sessionId: number, userId: number) {
-    const [rows] = await databaseClient.query<Rows>(
-      `SELECT
-        id,
-        user_id AS userId,
-        created_at AS createdAt,
-        started_at AS startedAt,
-        ended_at AS endedAt,
-        status
-       FROM workout_session
-       WHERE id = ?
-         AND user_id = ?`,
-      [sessionId, userId],
-    );
-
-    return rows[0];
-  }
-
-  async readCompletedSetCount(sessionId: number) {
-    const [rows] = await databaseClient.query<Rows>(
-      `SELECT COUNT(*) AS completedSetCount
-       FROM exercise_set
-       JOIN workout_session_exercise
-         ON workout_session_exercise.id = exercise_set.workout_session_exercise_id
-       WHERE workout_session_exercise.workout_session_id = ?
-         AND exercise_set.is_completed = TRUE`,
-      [sessionId],
-    );
-
-    return rows[0].completedSetCount;
   }
 
   async readCurrent(userId: number) {
@@ -89,39 +75,18 @@ class WorkoutSessionRepository {
     return rows[0];
   }
 
-  async start(sessionId: number, userId: number) {
-    const [result] = await databaseClient.query<Result>(
-      `UPDATE workout_session
-       SET status = 'in_progress',
-           started_at = NOW()
-       WHERE id = ?
-         AND user_id = ?
-         AND status = 'prepared'`,
-      [sessionId, userId],
+  async readCompletedSetCount(sessionId: number) {
+    const [rows] = await databaseClient.query<Rows>(
+      `SELECT COUNT(*) AS completedSetCount
+       FROM exercise_set
+       JOIN workout_session_exercise
+         ON workout_session_exercise.id = exercise_set.workout_session_exercise_id
+       WHERE workout_session_exercise.workout_session_id = ?
+         AND exercise_set.is_completed = TRUE`,
+      [sessionId],
     );
 
-    return result.affectedRows;
-  }
-
-  async abandon(sessionId: number, userId: number) {
-    const completedSetCount = await this.readCompletedSetCount(sessionId);
-
-    if (completedSetCount > 0) {
-      return 0;
-    }
-
-    const [result] = await databaseClient.query<Result>(
-      `UPDATE workout_session
-       SET status = 'prepared',
-           started_at = NULL,
-           ended_at = NULL
-       WHERE id = ?
-         AND user_id = ?
-         AND status = 'in_progress'`,
-      [sessionId, userId],
-    );
-
-    return result.affectedRows;
+    return rows[0].completedSetCount;
   }
 
   async readSummary(sessionId: number, userId: number) {
@@ -167,6 +132,41 @@ class WorkoutSessionRepository {
       completedSetCount: setRows.length,
       sets: setRows,
     };
+  }
+
+  async start(sessionId: number, userId: number) {
+    const [result] = await databaseClient.query<Result>(
+      `UPDATE workout_session
+       SET status = 'in_progress',
+           started_at = NOW()
+       WHERE id = ?
+         AND user_id = ?
+         AND status = 'prepared'`,
+      [sessionId, userId],
+    );
+
+    return result.affectedRows;
+  }
+
+  async abandon(sessionId: number, userId: number) {
+    const completedSetCount = await this.readCompletedSetCount(sessionId);
+
+    if (completedSetCount > 0) {
+      return 0;
+    }
+
+    const [result] = await databaseClient.query<Result>(
+      `UPDATE workout_session
+       SET status = 'prepared',
+           started_at = NULL,
+           ended_at = NULL
+       WHERE id = ?
+         AND user_id = ?
+         AND status = 'in_progress'`,
+      [sessionId, userId],
+    );
+
+    return result.affectedRows;
   }
 
   async complete(sessionId: number, userId: number) {
