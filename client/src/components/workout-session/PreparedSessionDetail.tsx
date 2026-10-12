@@ -131,14 +131,16 @@ const PreparedSessionDetail = ({
         isInProgress={false}
         updateSessionExercises={updateSessionExercises}
       >
-        <button
-          type="button"
-          onClick={handleStart}
-          disabled={exerciseCount === 0 || startLoading}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary bg-primary px-4 py-3.5 text-center font-semibold text-primary-content text-sm leading-tight transition-colors duration-200 sm:text-sm md:px-5 hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-info focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:border-base-300 disabled:bg-base-200 disabled:text-base-content/35 disabled:hover:border-base-300 disabled:hover:bg-base-200 lg:w-auto"
-        >
-          {startLoading ? "Démarrage..." : "Démarrer la séance"}
-        </button>
+        {exerciseCount > 0 && (
+          <button
+            type="button"
+            onClick={handleStart}
+            disabled={startLoading}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary bg-primary px-4 py-3.5 text-center font-semibold text-primary-content text-sm leading-tight transition-colors duration-200 sm:text-sm md:px-5 hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-info focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:border-base-300 disabled:bg-base-200 disabled:text-base-content/35 disabled:hover:border-base-300 disabled:hover:bg-base-200 lg:w-auto"
+          >
+            {startLoading ? "Démarrage..." : "Démarrer la séance"}
+          </button>
+        )}
       </SessionExercisesSection>
 
       {isDeleteModalOpen && (
