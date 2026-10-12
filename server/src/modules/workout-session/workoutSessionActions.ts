@@ -17,7 +17,7 @@ const add: RequestHandler = async (req, res, next) => {
       res.status(200).json({ id: emptySession.id });
       return;
     }
-    const sessionId = await workoutSessionRepository.create(userId);
+    const sessionId = await workoutSessionRepository.createSession(userId);
 
     res.status(201).json({ id: sessionId });
   } catch (err) {
@@ -120,14 +120,22 @@ const readSummary: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    const numberOfCompletedSets = Number(summary.completedSetCount);
+    const sets = await workoutSessionRepository.readCompletedSets(summary.id);
 
-    if (numberOfCompletedSets === 0) {
+    if (sets.length === 0) {
       res.sendStatus(422);
       return;
     }
 
-    res.status(200).json(summary);
+    res.json({
+      id: summary.id,
+      status: summary.status,
+      date: summary.date,
+      durationSeconds: summary.durationSeconds,
+      exerciseCount: summary.exerciseCount,
+      completedSetCount: sets.length,
+      sets: sets,
+    });
   } catch (err) {
     next(err);
   }
@@ -169,7 +177,7 @@ const start: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    const affectedRows = await workoutSessionRepository.start(
+    const affectedRows = await workoutSessionRepository.startSession(
       sessionId,
       userId,
     );
@@ -202,7 +210,7 @@ const abandon: RequestHandler = async (req, res, next) => {
       res.sendStatus(404);
       return;
     }
-    const sessionAbandon = await workoutSessionRepository.abandon(
+    const sessionAbandon = await workoutSessionRepository.abandonSession(
       sessionId,
       userId,
     );
@@ -226,27 +234,30 @@ const complete: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    const summary = await workoutSessionRepository.readSummary(
+    const session = await workoutSessionRepository.readSession(
       sessionId,
       userId,
     );
 
-    if (summary === undefined) {
+    if (session === undefined) {
       res.sendStatus(404);
       return;
     }
 
-    if (summary.status !== "in_progress") {
+    if (session.status !== "in_progress") {
       res.sendStatus(409);
       return;
     }
 
-    if (Number(summary.completedSetCount) === 0) {
+    const completedSetCount =
+      await workoutSessionRepository.readCompletedSetCount(session.id);
+
+    if (completedSetCount === 0) {
       res.sendStatus(422);
       return;
     }
 
-    const affectedRows = await workoutSessionRepository.complete(
+    const affectedRows = await workoutSessionRepository.completeSession(
       sessionId,
       userId,
     );
@@ -287,7 +298,7 @@ const destroy: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    await workoutSessionRepository.delete(sessionId, userId);
+    await workoutSessionRepository.deleteSession(sessionId, userId);
     res.sendStatus(204);
   } catch (err) {
     next(err);

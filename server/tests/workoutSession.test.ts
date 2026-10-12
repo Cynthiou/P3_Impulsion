@@ -34,7 +34,7 @@ describe("US11 - Workout sessions", () => {
       .spyOn(databaseClient, "query")
       .mockResolvedValue([{ insertId: 42 }, []] as never);
 
-    const sessionId = await workoutSessionRepository.create(1);
+    const sessionId = await workoutSessionRepository.createSession(1);
 
     expect(sessionId).toBe(42);
 
@@ -50,7 +50,7 @@ describe("US11 - Workout sessions", () => {
       .spyOn(workoutSessionRepository, "readPreparedSessions")
       .mockResolvedValue([] as never);
 
-    jest.spyOn(workoutSessionRepository, "create").mockResolvedValue(42);
+    jest.spyOn(workoutSessionRepository, "createSession").mockResolvedValue(42);
 
     const response = await authenticatedRequest.post("/api/workout-sessions");
 
@@ -64,7 +64,7 @@ describe("US11 - Workout sessions", () => {
       .mockResolvedValue([{ id: 7, exerciseCount: 0 }] as never);
 
     const createMock = jest
-      .spyOn(workoutSessionRepository, "create")
+      .spyOn(workoutSessionRepository, "createSession")
       .mockResolvedValue(99);
 
     const response = await authenticatedRequest.post("/api/workout-sessions");
@@ -80,7 +80,7 @@ describe("US11 - Workout sessions", () => {
       .spyOn(workoutSessionRepository, "readPreparedSessions")
       .mockResolvedValue([{ id: 7, exerciseCount: 3 }] as never);
 
-    jest.spyOn(workoutSessionRepository, "create").mockResolvedValue(8);
+    jest.spyOn(workoutSessionRepository, "createSession").mockResolvedValue(8);
 
     const response = await authenticatedRequest.post("/api/workout-sessions");
 
@@ -93,7 +93,7 @@ describe("US11 - Workout sessions", () => {
       id: 7,
       status: "prepared",
     } as never);
-    jest.spyOn(workoutSessionRepository, "delete").mockResolvedValue(1);
+    jest.spyOn(workoutSessionRepository, "deleteSession").mockResolvedValue(1);
 
     const response = await authenticatedRequest.delete(
       "/api/workout-sessions/7",
@@ -106,7 +106,7 @@ describe("US11 - Workout sessions", () => {
     jest
       .spyOn(workoutSessionRepository, "readSession")
       .mockResolvedValue(undefined as never);
-    const deleteMock = jest.spyOn(workoutSessionRepository, "delete");
+    const deleteMock = jest.spyOn(workoutSessionRepository, "deleteSession");
 
     const response = await authenticatedRequest.delete(
       "/api/workout-sessions/7",
@@ -121,7 +121,7 @@ describe("US11 - Workout sessions", () => {
       id: 7,
       status: "in_progress",
     } as never);
-    const deleteMock = jest.spyOn(workoutSessionRepository, "delete");
+    const deleteMock = jest.spyOn(workoutSessionRepository, "deleteSession");
 
     const response = await authenticatedRequest.delete(
       "/api/workout-sessions/7",
@@ -136,7 +136,7 @@ describe("US11 - Workout sessions", () => {
       .spyOn(databaseClient, "query")
       .mockResolvedValue([{ affectedRows: 0 }, []] as never);
 
-    await workoutSessionRepository.delete(7, 1);
+    await workoutSessionRepository.deleteSession(7, 1);
 
     const [sql, params] = queryMock.mock.calls[0];
 
@@ -574,7 +574,7 @@ describe("US16 - Démarrer une séance", () => {
       .spyOn(workoutSessionRepository, "readCurrent")
       .mockResolvedValue(undefined as never);
 
-    jest.spyOn(workoutSessionRepository, "start").mockResolvedValue(1);
+    jest.spyOn(workoutSessionRepository, "startSession").mockResolvedValue(1);
 
     const response = await authenticatedRequest.patch(
       "/api/workout-sessions/7/start",
@@ -626,7 +626,7 @@ describe("US22 - Abandonner une séance", () => {
       status: "in_progress",
     } as never);
 
-    jest.spyOn(workoutSessionRepository, "abandon").mockResolvedValue(0);
+    jest.spyOn(workoutSessionRepository, "abandonSession").mockResolvedValue(0);
 
     const response = await authenticatedRequest.patch(
       "/api/workout-sessions/7/abandon",
@@ -641,7 +641,7 @@ describe("US22 - Abandonner une séance", () => {
       .mockResolvedValueOnce([[{ completedSetCount: 0 }], []] as never)
       .mockResolvedValueOnce([{ affectedRows: 1 }, []] as never);
 
-    await workoutSessionRepository.abandon(7, 1);
+    await workoutSessionRepository.abandonSession(7, 1);
 
     const [, countParams] = queryMock.mock.calls[0];
     const [, updateParams] = queryMock.mock.calls[1];
