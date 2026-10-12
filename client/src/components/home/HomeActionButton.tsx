@@ -1,8 +1,8 @@
 import ArrowRightIcon from "../../assets/icons/arrows/arrow-right.svg?react";
 import ClockIcon from "../../assets/icons/seance/clock.svg?react";
+import useChrono from "../../hooks/workout-session/useChrono";
 import type { WorkoutSession } from "../../types/workoutSession";
 import { formatPlural } from "../../utils/formatPlural";
-import { formatSessionStartTime } from "../../utils/formatSessionDate";
 
 type HomeActionButtonProps = {
   currentSession: WorkoutSession | null;
@@ -17,18 +17,17 @@ const HomeActionButton = ({
   onAction,
   isLoading,
 }: HomeActionButtonProps) => {
+  const startedAt = currentSession !== null ? currentSession.startedAt : null;
+  const chrono = useChrono(startedAt);
+
   let actionTitle = "";
   let actionDescription = "";
+  let descriptionColorClassName = "text-base-content/75";
 
   if (currentSession !== null) {
-    let startTime = "";
-
-    if (currentSession.startedAt !== null) {
-      startTime = `${formatSessionStartTime(currentSession.startedAt)} · `;
-    }
-
     actionTitle = "REPRENDRE MA SÉANCE";
-    actionDescription = `${startTime}${formatPlural(currentSession.exerciseCount, "exercice")}`;
+    descriptionColorClassName = "text-info";
+    actionDescription = `${chrono} · ${formatPlural(currentSession.exerciseCount, "exercice")}`;
   } else if (hasDraft) {
     actionTitle = "AJOUTER DES EXERCICES";
     actionDescription = "Ta séance est créée, ajoute maintenant tes exercices.";
@@ -39,7 +38,9 @@ const HomeActionButton = ({
 
   return (
     <div className="relative mt-5 grid lg:mt-6 lg:p-8 grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 rounded-box border-2 border-primary bg-base-200 p-5 shadow-primary/25 shadow-xl transition-colors has-[button:hover]:bg-base-300">
-      <p className="col-start-1 row-start-2 flex items-center gap-1.5 text-base-content/75 text-sm leading-5">
+      <p
+        className={`col-start-1 row-start-2 flex items-center gap-1.5 text-sm leading-5 ${descriptionColorClassName}`}
+      >
         {currentSession !== null && (
           <ClockIcon aria-hidden="true" className="size-4" />
         )}

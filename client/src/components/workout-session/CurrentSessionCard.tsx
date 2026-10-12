@@ -1,19 +1,15 @@
 import { Link } from "react-router";
+import ClockIcon from "../../assets/icons/seance/clock.svg?react";
+import useChrono from "../../hooks/workout-session/useChrono";
 import type { WorkoutSession } from "../../types/workoutSession";
 import { formatPlural } from "../../utils/formatPlural";
-import { formatSessionStartTime } from "../../utils/formatSessionDate";
 
 type CurrentSessionCardProps = {
   session: WorkoutSession;
 };
 
 const CurrentSessionCard = ({ session }: CurrentSessionCardProps) => {
-  let startText = "";
-
-  if (session.startedAt !== null) {
-    startText = `Démarrée à ${formatSessionStartTime(session.startedAt)} · `;
-  }
-
+  const chrono = useChrono(session.startedAt);
   const exerciseText = formatPlural(session.exerciseCount, "exercice");
 
   return (
@@ -26,9 +22,9 @@ const CurrentSessionCard = ({ session }: CurrentSessionCardProps) => {
         Séance en cours
       </p>
 
-      <p className="col-start-1 mt-1 text-info text-sm">
-        {startText}
-        {exerciseText}
+      <p className="col-start-1 mt-1 flex items-center gap-1.5 text-info text-sm">
+        <ClockIcon aria-hidden="true" className="size-4" />
+        {chrono} · {exerciseText}
       </p>
 
       <Link
