@@ -1,5 +1,5 @@
 import { useState } from "react";
-import BarbellIcon from "../assets/icons/navigation/barbell.svg?react";
+import BarbellIcon from "../../assets/icons/navigation/barbell.svg?react";
 
 type SelectionCartProps = {
   count: number;

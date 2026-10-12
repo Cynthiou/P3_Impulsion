@@ -1,6 +1,6 @@
 import { Link } from "react-router";
-import type { WorkoutSession } from "../types/workoutSession";
-import { formatSessionStartTime } from "../utils/formatSessionDate";
+import type { WorkoutSession } from "../../types/workoutSession";
+import { formatSessionStartTime } from "../../utils/formatSessionDate";
 
 type CurrentSessionCardProps = {
   session: WorkoutSession;

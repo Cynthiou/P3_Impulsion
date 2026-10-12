@@ -1,5 +1,5 @@
 import { useState } from "react";
-import PencilIcon from "../assets/icons/actions/pencil.svg?react";
+import PencilIcon from "../../assets/icons/actions/pencil.svg?react";
 
 const REST_OPTIONS = [
   { label: "0:00", value: null },

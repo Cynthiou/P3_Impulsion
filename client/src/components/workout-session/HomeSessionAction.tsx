@@ -1,4 +1,4 @@
-import ArrowRightIcon from "../assets/icons/arrows/arrow-right.svg?react";
+import ArrowRightIcon from "../../assets/icons/arrows/arrow-right.svg?react";
 
 type HomeSessionActionProps = {
   subtitle: string;

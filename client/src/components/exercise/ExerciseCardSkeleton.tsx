@@ -1,4 +1,4 @@
-import Skeleton from "./feedback/Skeleton";
+import Skeleton from "../feedback/Skeleton";
 
 type ExerciseCardSkeletonProps = {
   selectionMode?: boolean;

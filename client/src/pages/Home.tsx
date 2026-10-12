@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
-import HomeSessionAction from "../components/HomeSessionAction";
-import PreparedSessionsList from "../components/PreparedSessionsList";
+import HomeSessionAction from "../components/workout-session/HomeSessionAction";
+import PreparedSessionsList from "../components/workout-session/PreparedSessionsList";
 import useCreatePreparedSession from "../hooks/workout-session/useCreatePreparedSession";
 import usePreparedSessions from "../hooks/workout-session/usePreparedSessions";
 

@@ -1,5 +1,5 @@
-import useAbandonSession from "../hooks/workout-session/useAbandonSession";
-import LocalErrorState from "./feedback/LocalErrorState";
+import useAbandonSession from "../../hooks/workout-session/useAbandonSession";
+import LocalErrorState from "../feedback/LocalErrorState";
 
 type AbandonSessionModalProps = {
   sessionId: number;

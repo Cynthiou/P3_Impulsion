@@ -1,5 +1,5 @@
-import PlusIcon from "../assets/icons/actions/plus.svg?react";
-import type { ExerciseSummary } from "../types/exercise";
+import PlusIcon from "../../assets/icons/actions/plus.svg?react";
+import type { ExerciseSummary } from "../../types/exercise";
 
 type ExerciseCardProps = {
   exercise: ExerciseSummary;

@@ -1,8 +1,11 @@
 import { useState } from "react";
-import PlusIcon from "../assets/icons/actions/plus.svg?react";
-import { useMessages } from "../contexts/MessageContext";
-import useExerciseSets from "../hooks/session-exercise/useExerciseSets";
-import type { CreateExerciseSet, ExerciseSet } from "../types/workoutSession";
+import PlusIcon from "../../assets/icons/actions/plus.svg?react";
+import { useMessages } from "../../contexts/MessageContext";
+import useExerciseSets from "../../hooks/session-exercise/useExerciseSets";
+import type {
+  CreateExerciseSet,
+  ExerciseSet,
+} from "../../types/workoutSession";
 
 type ExerciseSetManagerProps = {
   sessionExerciseId: number;

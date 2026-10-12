@@ -1,5 +1,5 @@
 import { useParams } from "react-router";
-import CompletedSessionView from "../components/session-detail/CompletedSessionView";
+import CompletedSessionView from "../components/history/CompletedSessionView";
 
 function HistoryDetail() {
   const { id } = useParams();

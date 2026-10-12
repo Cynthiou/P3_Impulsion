@@ -1,6 +1,6 @@
 import { useContext } from "react";
-import CurrentSessionCard from "../components/CurrentSessionCard";
-import PreparedSessionsList from "../components/PreparedSessionsList";
+import CurrentSessionCard from "../components/workout-session/CurrentSessionCard";
+import PreparedSessionsList from "../components/workout-session/PreparedSessionsList";
 import { CurrentSessionContext } from "../contexts/CurrentSessionContext";
 import usePreparedSessions from "../hooks/workout-session/usePreparedSessions";
 

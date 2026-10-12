@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ClockIcon from "../assets/icons/seance/clock.svg?react";
+import ClockIcon from "../../assets/icons/seance/clock.svg?react";
 
 type ChronoProps = {
   startedAt: string;

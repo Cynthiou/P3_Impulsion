@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
-import useExerciseDetail from "../hooks/exercise/useExerciseDetail";
-import ExerciseDetailContent from "./exercise-detail/ExerciseDetailContent";
-import ExerciseDetailSkeleton from "./exercise-detail/ExerciseDetailSkeleton";
-import LocalErrorState from "./feedback/LocalErrorState";
+import useExerciseDetail from "../../hooks/exercise/useExerciseDetail";
+import ExerciseDetailContent from "../exercise-detail/ExerciseDetailContent";
+import ExerciseDetailSkeleton from "../exercise-detail/ExerciseDetailSkeleton";
+import LocalErrorState from "../feedback/LocalErrorState";
 
 type ExerciseDetailSheetProps = {
   exerciseId: number | null;

@@ -7,7 +7,7 @@ import { calculateTotalVolume } from "../../utils/calculateTotalVolume";
 import { formatDuration } from "../../utils/formatDuration";
 import { formatFullDate } from "../../utils/formatSessionDate";
 import { groupSetsByExercise } from "../../utils/groupSetsByExercise";
-import ExerciseDetailSheet from "../ExerciseDetailSheet";
+import ExerciseDetailSheet from "../exercise/ExerciseDetailSheet";
 import CompletedExerciseBlock from "./CompletedExerciseBlock";
 
 type CompletedSessionViewProps = {

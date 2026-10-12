@@ -1,8 +1,8 @@
 import { Link, useNavigate } from "react-router";
-import ArrowRightIcon from "../assets/icons/arrows/arrow-right.svg?react";
-import CalendarIcon from "../assets/icons/navigation/calendar-month.svg?react";
-import useCreatePreparedSession from "../hooks/workout-session/useCreatePreparedSession";
-import type { WorkoutSession } from "../types/workoutSession";
+import ArrowRightIcon from "../../assets/icons/arrows/arrow-right.svg?react";
+import CalendarIcon from "../../assets/icons/navigation/calendar-month.svg?react";
+import useCreatePreparedSession from "../../hooks/workout-session/useCreatePreparedSession";
+import type { WorkoutSession } from "../../types/workoutSession";
 import PreparedSessionCard from "./PreparedSessionCard";
 
 type PreparedSessionsListProps = {

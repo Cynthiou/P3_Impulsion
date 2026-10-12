@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import RestTimeSelector from "../components/RestTimeSelector";
+import RestTimeSelector from "../components/session-exercise/RestTimeSelector";
 import useWorkoutTemplates from "../hooks/workout-template/useWorkoutTemplates";
 
 function Programs() {
