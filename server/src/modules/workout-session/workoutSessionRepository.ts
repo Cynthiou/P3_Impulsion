@@ -15,88 +15,24 @@ class WorkoutSessionRepository {
   async readAllPrepared(userId: number) {
     const [rows] = await databaseClient.query<Rows>(
       `SELECT
-        workout_session.id,
-        workout_session.user_id AS userId,
-        workout_session.created_at AS createdAt,
-        workout_session.started_at AS startedAt,
-        workout_session.ended_at AS endedAt,
-        workout_session.status,
-        COUNT(workout_session_exercise.id) AS exerciseCount
-      FROM workout_session
-      LEFT JOIN workout_session_exercise
-        ON workout_session.id = workout_session_exercise.workout_session_id
-      WHERE workout_session.user_id = ?
-        AND workout_session.status = 'prepared'
-      GROUP BY workout_session.id
-      ORDER BY workout_session.created_at DESC`,
+        id,
+        user_id AS userId,
+        created_at AS createdAt,
+        started_at AS startedAt,
+        ended_at AS endedAt,
+        status,
+        (SELECT COUNT(*)
+         FROM workout_session_exercise
+         WHERE workout_session_exercise.workout_session_id = workout_session.id
+        ) AS exerciseCount
+       FROM workout_session
+       WHERE user_id = ?
+         AND status = 'prepared'
+       ORDER BY created_at DESC`,
       [userId],
     );
 
     return rows;
-  }
-
-  async readAllCompleted(userId: number) {
-    const [sessionRows] = await databaseClient.query<Rows>(
-      `SELECT
-        id,
-        started_at AS date,
-        TIMESTAMPDIFF(SECOND, started_at, ended_at) AS durationSeconds
-       FROM workout_session
-       WHERE user_id = ?
-         AND status = 'completed'
-       ORDER BY started_at DESC`,
-      [userId],
-    );
-
-    if (sessionRows.length === 0) {
-      return [];
-    }
-
-    const sessionsId = sessionRows.map((session) => session.id);
-
-    const [exerciseRows] = await databaseClient.query<Rows>(
-      `SELECT workout_session_id
-       FROM workout_session_exercise
-       WHERE workout_session_id IN (?)`,
-      [sessionsId],
-    );
-
-    const [setRows] = await databaseClient.query<Rows>(
-      `SELECT
-        workout_session_exercise.workout_session_id,
-        exercise_set.repetitions,
-        exercise_set.weight_kg
-       FROM exercise_set
-       JOIN workout_session_exercise
-         ON workout_session_exercise.id = exercise_set.workout_session_exercise_id
-       WHERE workout_session_exercise.workout_session_id IN (?)
-         AND exercise_set.is_completed = TRUE`,
-      [sessionsId],
-    );
-
-    return sessionRows.map((session) => {
-      let exerciseCount = 0;
-
-      for (const exercise of exerciseRows) {
-        if (exercise.workout_session_id === session.id) {
-          exerciseCount += 1;
-        }
-      }
-      let totalVolumeKg = 0;
-
-      for (const set of setRows) {
-        if (set.workout_session_id === session.id) {
-          totalVolumeKg += Number(set.repetitions) * Number(set.weight_kg);
-        }
-      }
-      return {
-        id: session.id,
-        date: session.date,
-        durationSeconds: Number(session.durationSeconds),
-        exerciseCount,
-        totalVolumeKg,
-      };
-    });
   }
 
   async read(sessionId: number, userId: number) {
@@ -169,20 +105,20 @@ class WorkoutSessionRepository {
   async readCurrent(userId: number) {
     const [rows] = await databaseClient.query<Rows>(
       `SELECT
-      workout_session.id,
-      workout_session.user_id AS userId,
-      workout_session.created_at AS createdAt,
-      workout_session.started_at AS startedAt,
-      workout_session.ended_at AS endedAt,
-      workout_session.status,
-      COUNT(workout_session_exercise.id) AS exerciseCount
-    FROM workout_session
-    LEFT JOIN workout_session_exercise
-      ON workout_session.id = workout_session_exercise.workout_session_id
-    WHERE workout_session.user_id = ?
-      AND workout_session.status = 'in_progress'
-    GROUP BY workout_session.id
-    LIMIT 1`,
+        id,
+        user_id AS userId,
+        created_at AS createdAt,
+        started_at AS startedAt,
+        ended_at AS endedAt,
+        status,
+        (SELECT COUNT(*)
+         FROM workout_session_exercise
+         WHERE workout_session_exercise.workout_session_id = workout_session.id
+        ) AS exerciseCount
+       FROM workout_session
+       WHERE user_id = ?
+         AND status = 'in_progress'
+       LIMIT 1`,
       [userId],
     );
 
@@ -470,7 +406,7 @@ class WorkoutSessionRepository {
         id,
         status,
         started_at AS date,
-        TIMESTAMPDIFF(SECOND, started_at, NOW()) AS durationSeconds
+        LEAST(TIMESTAMPDIFF(SECOND, started_at, NOW()), 6 * 60 * 60) AS durationSeconds
        FROM workout_session
        WHERE id = ?
          AND user_id = ?`,
@@ -489,7 +425,7 @@ class WorkoutSessionRepository {
       [sessionId],
     );
     const [setRows] = await databaseClient.query<Rows>(
-      `SELECT exercise_set.repetitions, exercise_set.weight_kg
+      `SELECT exercise_set.repetitions, exercise_set.weight_kg AS weightKg
        FROM exercise_set
        JOIN workout_session_exercise
          ON workout_session_exercise.id = exercise_set.workout_session_exercise_id
@@ -497,25 +433,15 @@ class WorkoutSessionRepository {
          AND exercise_set.is_completed = TRUE`,
       [sessionId],
     );
-    let totalVolumeKg = 0;
-
-    for (const set of setRows) {
-      totalVolumeKg += Number(set.repetitions) * Number(set.weight_kg);
-    }
-    const maxDurationSeconds = 6 * 60 * 60;
-    const durationSeconds = Math.min(
-      Number(session.durationSeconds),
-      maxDurationSeconds,
-    );
 
     return {
       id: session.id,
       status: session.status,
       date: session.date,
-      durationSeconds,
+      durationSeconds: Number(session.durationSeconds),
       exerciseCount: Number(exerciseRows[0].exerciseCount),
       completedSetCount: setRows.length,
-      totalVolumeKg,
+      sets: setRows,
     };
   }
 
@@ -531,69 +457,6 @@ class WorkoutSessionRepository {
     );
 
     return result.affectedRows;
-  }
-
-  async readDetail(sessionId: number, userId: number) {
-    const session = await this.read(sessionId, userId);
-
-    if (session === undefined || session.status !== "completed") {
-      return undefined;
-    }
-
-    const [setRows] = await databaseClient.query<Rows>(
-      `SELECT
-        exercise_set.workout_session_exercise_id AS sessionExerciseId,
-        exercise_set.set_number AS setNumber,
-        exercise_set.repetitions,
-        exercise_set.weight_kg AS weightKg,
-        exercise_set.duration_seconds AS durationSeconds
-      FROM exercise_set
-      JOIN workout_session_exercise
-        ON workout_session_exercise.id = exercise_set.workout_session_exercise_id
-      WHERE workout_session_exercise.workout_session_id = ?
-        AND exercise_set.is_completed = TRUE
-      ORDER BY exercise_set.set_number`,
-      [sessionId],
-    );
-
-    const exercises = [];
-
-    for (const exercise of session.exercises) {
-      const sets = [];
-
-      for (const set of setRows) {
-        if (set.sessionExerciseId === exercise.sessionExerciseId) {
-          sets.push(set);
-        }
-      }
-
-      exercises.push({
-        sessionExerciseId: exercise.sessionExerciseId,
-        id: exercise.id,
-        slug: exercise.slug,
-        name: exercise.name,
-        category: exercise.category,
-        position: exercise.position,
-        targetSets: exercise.targetSets,
-        targetReps: exercise.targetReps,
-        targetWeightKg: exercise.targetWeightKg,
-        targetDurationSeconds: exercise.targetDurationSeconds,
-        restSeconds: exercise.restSeconds,
-        sets: sets,
-      });
-    }
-
-    return {
-      id: session.id,
-      userId: session.userId,
-      createdAt: session.createdAt,
-      startedAt: session.startedAt,
-      endedAt: session.endedAt,
-      status: session.status,
-      exerciseCount: session.exerciseCount,
-      completedSetCount: session.completedSetCount,
-      exercises: exercises,
-    };
   }
 
   async delete(sessionId: number, userId: number) {

@@ -1,8 +1,8 @@
 import InfoIcon from "../../assets/icons/etats/info-circle.svg?react";
-import type { WorkoutSessionDetailExercise } from "../../types/workoutSession";
+import type { DetailExerciseWithSets } from "../../types/workoutSession";
 
 type CompletedExerciseBlockProps = {
-  exercise: WorkoutSessionDetailExercise;
+  exercise: DetailExerciseWithSets;
   onOpenDetail: (exerciseId: number) => void;
 };
 
@@ -11,7 +11,7 @@ function CompletedExerciseBlock({
   onOpenDetail,
 }: CompletedExerciseBlockProps) {
   return (
-    <article className="overflow-hidden rounded-box border border-base-300 bg-base-200">
+    <article className="overflow-hidden rounded-box border border-info/60 bg-base-200">
       <div className="flex items-center justify-between gap-3 border-base-300 border-b px-4 py-3">
         <h3 className="font-semibold text-base-content">
           {exercise.position} · {exercise.name}
@@ -21,7 +21,7 @@ function CompletedExerciseBlock({
           type="button"
           onClick={() => onOpenDetail(exercise.id)}
           aria-label={`Voir la fiche de ${exercise.name}`}
-          className="grid size-8 shrink-0 place-items-center rounded-full text-primary hover:bg-primary/10"
+          className="grid size-8 shrink-0 place-items-center rounded-full text-info hover:bg-info/10"
         >
           <InfoIcon aria-hidden="true" className="size-5" />
         </button>

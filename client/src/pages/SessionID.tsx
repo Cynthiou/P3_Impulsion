@@ -8,6 +8,7 @@ import AbandonSessionModal from "../components/AbandonSessionModal";
 import Chrono from "../components/Chrono";
 import ConflictSessionModal from "../components/ConflictSessionModal";
 import DeleteSessionModal from "../components/DeleteSessionModal";
+import ExerciseDetailSheet from "../components/ExerciseDetailSheet";
 import PreparedExerciseCard from "../components/PreparedExerciseCard";
 import CompletedSessionView from "../components/session-detail/CompletedSessionView";
 import { CurrentSessionContext } from "../contexts/CurrentSessionContext";
@@ -32,6 +33,10 @@ function SessionId() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isAbandonModalOpen, setIsAbandonModalOpen] = useState(false);
   const [userClosedConflictModal, setUserClosedConflictModal] = useState(false);
+  const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(
+    null,
+  );
+  const [openedExerciseId, setOpenedExerciseId] = useState<number | null>(null);
 
   const {
     reorderSessionExercises,
@@ -264,13 +269,20 @@ function SessionId() {
 
   const isPrepared = session.status === "prepared" && !isInProgress;
 
-  const hasCompletedSets = Number(session.completedSetCount ?? 0) > 0;
+  let hasCompletedSets = false;
 
-  const startedAt = isCurrentSession
-    ? currentSession.startedAt
-    : session.startedAt;
+  if (
+    session.completedSetCount !== undefined &&
+    session.completedSetCount > 0
+  ) {
+    hasCompletedSets = true;
+  }
 
-  const showChrono = isInProgress && startedAt !== null;
+  let startedAt = session.startedAt;
+
+  if (isCurrentSession) {
+    startedAt = currentSession.startedAt;
+  }
 
   return (
     <div className="w-full max-w-3xl pb-32 md:py-4 md:pb-4 lg:px-4">
@@ -318,7 +330,7 @@ function SessionId() {
       <div className="mt-4 flex items-center justify-between gap-3 lg:mt-5">
         <p className="min-w-0 font-semibold capitalize">{formattedDate}</p>
 
-        {showChrono && <Chrono startedAt={startedAt} />}
+        {isInProgress && startedAt !== null && <Chrono startedAt={startedAt} />}
 
         {!isInProgress && (
           <span className="inline-flex shrink-0 whitespace-nowrap rounded-full bg-info/15 px-2.5 py-1 font-semibold text-[11px] text-info uppercase tracking-wide">
@@ -398,6 +410,9 @@ function SessionId() {
                   handleRemoveExercise(exercise.sessionExerciseId)
                 }
                 canManageSets={isInProgress}
+                onOpenDetail={() => setSelectedExerciseId(exercise.id)}
+                isOpen={openedExerciseId === exercise.sessionExerciseId}
+                onOpen={() => setOpenedExerciseId(exercise.sessionExerciseId)}
               />
             ))}
           </div>
@@ -420,7 +435,7 @@ function SessionId() {
               type="button"
               onClick={handleStart}
               disabled={exerciseCount === 0 || startLoading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary bg-primary px-4 py-3.5 text-center font-semibold text-primary-content text-sm leading-tight transition-colors duration-200 sm:text-sm md:px-5 hover:border-info hover:bg-info hover:text-white focus-visible:outline-2 focus-visible:outline-info focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:border-base-300 disabled:bg-base-200 disabled:text-base-content/35 disabled:hover:border-base-300 disabled:hover:bg-base-200 lg:w-auto"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary bg-primary px-4 py-3.5 text-center font-semibold text-primary-content text-sm leading-tight transition-colors duration-200 sm:text-sm md:px-5 hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-info focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:border-base-300 disabled:bg-base-200 disabled:text-base-content/35 disabled:hover:border-base-300 disabled:hover:bg-base-200 lg:w-auto"
             >
               {startLoading ? "Démarrage..." : "Démarrer la séance"}
             </button>
@@ -466,6 +481,11 @@ function SessionId() {
           onAbandon={handleAbandonCurrentSession}
         />
       )}
+
+      <ExerciseDetailSheet
+        exerciseId={selectedExerciseId}
+        onClose={() => setSelectedExerciseId(null)}
+      />
     </div>
   );
 }

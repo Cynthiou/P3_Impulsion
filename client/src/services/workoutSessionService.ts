@@ -2,8 +2,6 @@ import type {
   CreateExerciseSet,
   ExerciseSet,
   WorkoutSession,
-  WorkoutSessionDetail,
-  WorkoutSessionHistory,
   WorkoutSessionSummary,
 } from "../types/workoutSession";
 
@@ -75,24 +73,19 @@ const startWorkoutSession = async (sessionId: number) => {
     `${API_URL}/api/workout-sessions/${sessionId}/start`,
     { method: "PATCH", credentials: "include" },
   );
+
   if (response.status === 409) {
-    let currentSessionId = null;
+    const data = await response.json();
+    const currentSessionId = data.currentSessionId;
 
-    try {
-      const conflict = await response.json();
-      currentSessionId = conflict.currentSessionId;
-    } catch {
-      // la réponse ne contient pas de JSON : on garde null
-    }
-
-    return { result: "conflict", currentSessionId: currentSessionId };
+    return { status: "conflict", currentSessionId: currentSessionId };
   }
+
   if (!response.ok) {
     throw new Error("Impossible de démarrer la séance");
   }
-  return {
-    result: "started",
-  };
+
+  return { status: "started" };
 };
 
 const completeWorkoutSession = async (sessionId: number): Promise<void> => {
@@ -204,34 +197,6 @@ const deleteWorkoutSessionExercise = async (
   }
 };
 
-const getHistory = async (): Promise<WorkoutSessionHistory[]> => {
-  const response = await fetch(`${API_URL}/api/workout-sessions/history`, {
-    credentials: "include",
-  });
-  if (!response.ok) {
-    throw new Error("Impossible de charger les séances");
-  }
-  const sessions = await response.json();
-  return sessions;
-};
-
-const getWorkoutSessionDetail = async (
-  sessionId: number,
-): Promise<WorkoutSessionDetail | null> => {
-  const response = await fetch(
-    `${API_URL}/api/workout-sessions/${sessionId}/details`,
-    { credentials: "include" },
-  );
-  if (response.status === 404) {
-    return null;
-  }
-  if (!response.ok) {
-    throw new Error("Impossible de charger cette séance");
-  }
-  const session = await response.json();
-  return session;
-};
-
 const getExerciseSets = async (
   sessionExerciseId: number,
 ): Promise<ExerciseSet[]> => {
@@ -284,8 +249,6 @@ export default {
   reorderWorkoutSessionExercises,
   updateWorkoutSessionExerciseRest,
   deleteWorkoutSessionExercise,
-  getHistory,
-  getWorkoutSessionDetail,
   getExerciseSets,
   postExerciseSet,
 };

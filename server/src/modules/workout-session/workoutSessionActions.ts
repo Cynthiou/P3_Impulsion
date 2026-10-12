@@ -257,17 +257,6 @@ const browse: RequestHandler = async (req, res, next) => {
   }
 };
 
-const browseHistory: RequestHandler = async (req, res, next) => {
-  try {
-    const userId = getCurrentUserId(req);
-    const sessions = await workoutSessionRepository.readAllCompleted(userId);
-
-    res.json(sessions);
-  } catch (err) {
-    next(err);
-  }
-};
-
 const read: RequestHandler = async (req, res, next) => {
   try {
     const userId = getCurrentUserId(req);
@@ -334,7 +323,7 @@ const start: RequestHandler = async (req, res, next) => {
     );
 
     if (affectedRows === 0) {
-      res.sendStatus(409);
+      res.sendStatus(422);
       return;
     }
 
@@ -434,62 +423,6 @@ const readCurrent: RequestHandler = async (req, res, next) => {
     const session = await workoutSessionRepository.readCurrent(userId);
 
     res.json(session ?? null);
-  } catch (err) {
-    next(err);
-  }
-};
-
-const readDetail: RequestHandler = async (req, res, next) => {
-  try {
-    const userId = getCurrentUserId(req);
-    const sessionId = Number(req.params.id);
-
-    if (!Number.isInteger(sessionId) || sessionId <= 0) {
-      res.sendStatus(400);
-      return;
-    }
-
-    const session = await workoutSessionRepository.readDetail(
-      sessionId,
-      userId,
-    );
-
-    if (session === undefined) {
-      res.sendStatus(404);
-      return;
-    }
-
-    const exercises = [];
-
-    for (const exercise of session.exercises) {
-      exercises.push({
-        sessionExerciseId: exercise.sessionExerciseId,
-        id: exercise.id,
-        slug: exercise.slug,
-        name: exercise.name,
-        category: exercise.category,
-        position: exercise.position,
-        targetSets: exercise.targetSets,
-        targetReps: exercise.targetReps,
-        targetWeightKg: exercise.targetWeightKg,
-        targetDurationSeconds: exercise.targetDurationSeconds,
-        restSeconds: exercise.restSeconds,
-        sets: exercise.sets,
-        imageUrl: buildImageUrl(exercise.slug),
-      });
-    }
-
-    res.json({
-      id: session.id,
-      userId: session.userId,
-      createdAt: session.createdAt,
-      startedAt: session.startedAt,
-      endedAt: session.endedAt,
-      status: session.status,
-      exerciseCount: session.exerciseCount,
-      completedSetCount: session.completedSetCount,
-      exercises: exercises,
-    });
   } catch (err) {
     next(err);
   }
@@ -660,10 +593,8 @@ export default {
   add,
   addExercises,
   browse,
-  browseHistory,
   read,
   readCurrent,
-  readDetail,
   removeExercise,
   start,
   reorderExercises,

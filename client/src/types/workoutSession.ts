@@ -31,7 +31,10 @@ export type WorkoutSessionSummary = {
   durationSeconds: number;
   completedSetCount: number;
   exerciseCount: number;
-  totalVolumeKg: number;
+  sets: {
+    repetitions: number | null;
+    weightKg: number | string | null;
+  }[];
 };
 
 export type WorkoutSessionHistory = {
@@ -39,7 +42,6 @@ export type WorkoutSessionHistory = {
   date: string;
   durationSeconds: number;
   exerciseCount: number;
-  totalVolumeKg: number;
 };
 
 export type CompletedSet = {
@@ -65,17 +67,26 @@ export type CreateExerciseSet = {
   durationSeconds: number | null;
 };
 
-export type WorkoutSessionDetailExercise = WorkoutSessionExercise & {
+export type DetailExercise = {
+  sessionExerciseId: number;
+  id: number;
+  name: string;
+  position: number;
+};
+
+export type DetailExerciseWithSets = {
+  sessionExerciseId: number;
+  id: number;
+  name: string;
+  position: number;
   sets: CompletedSet[];
 };
 
 export type WorkoutSessionDetail = {
   id: number;
-  userId: number;
-  createdAt: string;
-  startedAt: string | null;
-  endedAt: string | null;
-  status: WorkoutSessionStatus;
+  startedAt: string;
+  durationSeconds: number;
   exerciseCount: number;
-  exercises: WorkoutSessionDetailExercise[];
+  exercises: DetailExercise[];
+  sets: CompletedSet[];
 };
