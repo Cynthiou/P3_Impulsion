@@ -209,6 +209,14 @@ const abandon: RequestHandler = async (req, res, next) => {
       res.sendStatus(404);
       return;
     }
+
+    const sets = await workoutSessionRepository.readCompletedSets(session.id);
+
+    if (sets.length > 0) {
+      res.sendStatus(409);
+      return;
+    }
+
     const sessionAbandon = await workoutSessionRepository.abandonSession(
       sessionId,
       userId,

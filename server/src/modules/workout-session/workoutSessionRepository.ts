@@ -124,12 +124,6 @@ class WorkoutSessionRepository {
   }
 
   async abandonSession(sessionId: number, userId: number) {
-    const sets = await this.readCompletedSets(sessionId);
-
-    if (sets.length > 0) {
-      return 0;
-    }
-
     const [result] = await databaseClient.query<Result>(
       `UPDATE workout_session
        SET status = 'prepared',

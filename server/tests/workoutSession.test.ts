@@ -626,27 +626,28 @@ describe("US22 - Abandonner une séance", () => {
       status: "in_progress",
     } as never);
 
-    jest.spyOn(workoutSessionRepository, "abandonSession").mockResolvedValue(0);
+    jest
+      .spyOn(workoutSessionRepository, "readCompletedSets")
+      .mockResolvedValue([{ repetitions: 10, weightKg: 40 }] as never);
+    const abandonMock = jest.spyOn(workoutSessionRepository, "abandonSession");
 
     const response = await authenticatedRequest.patch(
       "/api/workout-sessions/7/abandon",
     );
 
     expect(response.status).toBe(409);
+    expect(abandonMock).not.toHaveBeenCalled();
   });
 
   test("transmet les paramètres dans le bon ordre pour abandonner", async () => {
     const queryMock = jest
       .spyOn(databaseClient, "query")
-      .mockResolvedValueOnce([[], []] as never)
-      .mockResolvedValueOnce([{ affectedRows: 1 }, []] as never);
+      .mockResolvedValue([{ affectedRows: 1 }, []] as never);
 
     await workoutSessionRepository.abandonSession(7, 1);
 
-    const [, setsParams] = queryMock.mock.calls[0];
-    const [, updateParams] = queryMock.mock.calls[1];
+    const [, updateParams] = queryMock.mock.calls[0];
 
-    expect(setsParams).toEqual([7]);
     expect(updateParams).toEqual([7, 1]);
   });
 });
