@@ -191,10 +191,12 @@ const abandon: RequestHandler = async (req, res, next) => {
   try {
     const userId = getCurrentUserId(req);
     const sessionId = Number(req.params.id);
+
     if (!Number.isInteger(sessionId) || sessionId <= 0) {
       res.sendStatus(400);
       return;
     }
+
     const session = await workoutSessionRepository.readSession(
       sessionId,
       userId,
@@ -216,10 +218,12 @@ const abandon: RequestHandler = async (req, res, next) => {
       sessionId,
       userId,
     );
+
     if (sessionAbandon === 1) {
       res.sendStatus(204);
       return;
     }
+
     res.sendStatus(409);
   } catch (err) {
     next(err);
