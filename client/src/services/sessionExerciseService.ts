@@ -81,21 +81,6 @@ const deleteWorkoutSessionExercise = async (
   }
 };
 
-const getExerciseSets = async (
-  sessionExerciseId: number,
-): Promise<ExerciseSet[]> => {
-  const response = await fetch(
-    `${API_URL}/api/session-exercises/${sessionExerciseId}/sets`,
-    { credentials: "include" },
-  );
-
-  if (!response.ok) {
-    throw new Error("Impossible de charger les séries");
-  }
-
-  return response.json();
-};
-
 const postExerciseSet = async (
   sessionExerciseId: number,
   values: CreateExerciseSet,
@@ -119,11 +104,26 @@ const postExerciseSet = async (
   return response.json();
 };
 
+const getExerciseSets = async (
+  sessionExerciseId: number,
+): Promise<ExerciseSet[]> => {
+  const response = await fetch(
+    `${API_URL}/api/session-exercises/${sessionExerciseId}/sets`,
+    { credentials: "include" },
+  );
+
+  if (!response.ok) {
+    throw new Error("Impossible de charger les séries");
+  }
+
+  return response.json();
+};
+
 export default {
   postExercisesToSession,
   reorderWorkoutSessionExercises,
   updateWorkoutSessionExerciseRest,
   deleteWorkoutSessionExercise,
-  getExerciseSets,
   postExerciseSet,
+  getExerciseSets,
 };

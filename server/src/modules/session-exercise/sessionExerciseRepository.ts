@@ -83,6 +83,102 @@ class SessionExerciseRepository {
     return "created";
   }
 
+  async readSessionExercises(sessionId: number) {
+    const [rows] = await databaseClient.query<Rows>(
+      `SELECT
+        workout_session_exercise.id AS sessionExerciseId,
+        exercise.id,
+        exercise.slug,
+        exercise.name,
+        category.name AS category,
+        workout_session_exercise.position,
+        workout_session_exercise.target_sets AS targetSets,
+        workout_session_exercise.target_reps AS targetReps,
+        workout_session_exercise.target_weight_kg AS targetWeightKg,
+        workout_session_exercise.target_duration_seconds AS targetDurationSeconds,
+        workout_session_exercise.rest_seconds AS restSeconds
+       FROM workout_session_exercise
+       JOIN exercise
+         ON exercise.id = workout_session_exercise.exercise_id
+       JOIN category
+         ON category.id = exercise.category_id
+       WHERE workout_session_exercise.workout_session_id = ?
+       ORDER BY workout_session_exercise.position`,
+      [sessionId],
+    );
+
+    return rows;
+  }
+
+  async reorderExercises(
+    sessionId: number,
+    userId: number,
+    sessionExerciseIds: number[],
+  ) {
+    const [sessionRows] = await databaseClient.query<Rows>(
+      `SELECT status
+       FROM workout_session
+       WHERE id = ?
+         AND user_id = ?`,
+      [sessionId, userId],
+    );
+
+    const session = sessionRows[0];
+
+    if (session === undefined) {
+      return "session_not_found";
+    }
+
+    if (!["prepared", "in_progress"].includes(session.status)) {
+      return "session_not_reorderable";
+    }
+
+    const [exerciseRows] = await databaseClient.query<Rows>(
+      `SELECT id AS sessionExerciseId
+       FROM workout_session_exercise
+       WHERE workout_session_id = ?`,
+      [sessionId],
+    );
+
+    const existingSessionExerciseIds = new Set(
+      exerciseRows.map((exercise) => Number(exercise.sessionExerciseId)),
+    );
+
+    const containsExactlyTheSameExercises =
+      existingSessionExerciseIds.size === sessionExerciseIds.length &&
+      sessionExerciseIds.every((sessionExerciseId) =>
+        existingSessionExerciseIds.has(sessionExerciseId),
+      );
+
+    if (!containsExactlyTheSameExercises) {
+      return "invalid_exercise_list";
+    }
+
+    const temporaryOffset = sessionExerciseIds.length;
+
+    await databaseClient.query<Result>(
+      `UPDATE workout_session_exercise
+       SET position = position + ?
+       WHERE workout_session_id = ?
+       ORDER BY position DESC`,
+      [temporaryOffset, sessionId],
+    );
+
+    for (const [index, sessionExerciseId] of sessionExerciseIds.entries()) {
+      const newPosition = index + 1;
+
+      await databaseClient.query<Result>(
+        `UPDATE workout_session_exercise
+         SET position = ?
+         WHERE id = ?
+         AND workout_session_id = ?`,
+        [newPosition, sessionExerciseId, sessionId],
+      );
+    }
+
+    return "reordered";
+  }
+
   async updateExerciseRest(
     sessionId: number,
     sessionExerciseId: number,
@@ -168,73 +264,19 @@ class SessionExerciseRepository {
     return "deleted";
   }
 
-  async reorderExercises(
-    sessionId: number,
-    userId: number,
-    sessionExerciseIds: number[],
-  ) {
-    const [sessionRows] = await databaseClient.query<Rows>(
-      `SELECT status
-       FROM workout_session
-       WHERE id = ?
-         AND user_id = ?`,
-      [sessionId, userId],
-    );
-
-    const session = sessionRows[0];
-
-    if (session === undefined) {
-      return "session_not_found";
-    }
-
-    if (!["prepared", "in_progress"].includes(session.status)) {
-      return "session_not_reorderable";
-    }
-
-    const [exerciseRows] = await databaseClient.query<Rows>(
-      `SELECT id AS sessionExerciseId
+  async readSessionExerciseOwner(workoutSessionExerciseId: number) {
+    const [rows] = await databaseClient.query<Rows>(
+      `SELECT
+        workout_session.user_id AS userId,
+        workout_session.status
        FROM workout_session_exercise
-       WHERE workout_session_id = ?`,
-      [sessionId],
+       JOIN workout_session
+         ON workout_session_exercise.workout_session_id = workout_session.id
+       WHERE workout_session_exercise.id = ?`,
+      [workoutSessionExerciseId],
     );
 
-    const existingSessionExerciseIds = new Set(
-      exerciseRows.map((exercise) => Number(exercise.sessionExerciseId)),
-    );
-
-    const containsExactlyTheSameExercises =
-      existingSessionExerciseIds.size === sessionExerciseIds.length &&
-      sessionExerciseIds.every((sessionExerciseId) =>
-        existingSessionExerciseIds.has(sessionExerciseId),
-      );
-
-    if (!containsExactlyTheSameExercises) {
-      return "invalid_exercise_list";
-    }
-
-    const temporaryOffset = sessionExerciseIds.length;
-
-    await databaseClient.query<Result>(
-      `UPDATE workout_session_exercise
-       SET position = position + ?
-       WHERE workout_session_id = ?
-       ORDER BY position DESC`,
-      [temporaryOffset, sessionId],
-    );
-
-    for (const [index, sessionExerciseId] of sessionExerciseIds.entries()) {
-      const newPosition = index + 1;
-
-      await databaseClient.query<Result>(
-        `UPDATE workout_session_exercise
-         SET position = ?
-         WHERE id = ?
-         AND workout_session_id = ?`,
-        [newPosition, sessionExerciseId, sessionId],
-      );
-    }
-
-    return "reordered";
+    return rows[0];
   }
 
   async createSet(
@@ -275,21 +317,6 @@ class SessionExerciseRepository {
     };
   }
 
-  async readSessionExerciseOwner(workoutSessionExerciseId: number) {
-    const [rows] = await databaseClient.query<Rows>(
-      `SELECT
-        workout_session.user_id AS userId,
-        workout_session.status
-       FROM workout_session_exercise
-       JOIN workout_session
-         ON workout_session_exercise.workout_session_id = workout_session.id
-       WHERE workout_session_exercise.id = ?`,
-      [workoutSessionExerciseId],
-    );
-
-    return rows[0];
-  }
-
   async readSetsBySessionExercise(workoutSessionExerciseId: number) {
     const [rows] = await databaseClient.query<Rows>(
       `SELECT
@@ -303,33 +330,6 @@ class SessionExerciseRepository {
        WHERE workout_session_exercise_id = ?
        ORDER BY set_number`,
       [workoutSessionExerciseId],
-    );
-
-    return rows;
-  }
-
-  async readSessionExercises(sessionId: number) {
-    const [rows] = await databaseClient.query<Rows>(
-      `SELECT
-        workout_session_exercise.id AS sessionExerciseId,
-        exercise.id,
-        exercise.slug,
-        exercise.name,
-        category.name AS category,
-        workout_session_exercise.position,
-        workout_session_exercise.target_sets AS targetSets,
-        workout_session_exercise.target_reps AS targetReps,
-        workout_session_exercise.target_weight_kg AS targetWeightKg,
-        workout_session_exercise.target_duration_seconds AS targetDurationSeconds,
-        workout_session_exercise.rest_seconds AS restSeconds
-       FROM workout_session_exercise
-       JOIN exercise
-         ON exercise.id = workout_session_exercise.exercise_id
-       JOIN category
-         ON category.id = exercise.category_id
-       WHERE workout_session_exercise.workout_session_id = ?
-       ORDER BY workout_session_exercise.position`,
-      [sessionId],
     );
 
     return rows;

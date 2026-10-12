@@ -23,87 +23,60 @@ type UpdateExerciseRestBody = {
   restSeconds: number | null;
 };
 
-const removeExercise: RequestHandler<WorkoutSessionExerciseParams> = async (
-  req,
-  res,
-  next,
-) => {
-  try {
-    const userId = getCurrentUserId(req);
-    const sessionId = Number(req.params.id);
-    const sessionExerciseId = Number(req.params.sessionExerciseId);
-
-    if (
-      !Number.isInteger(sessionId) ||
-      sessionId <= 0 ||
-      !Number.isInteger(sessionExerciseId) ||
-      sessionExerciseId <= 0
-    ) {
-      res.sendStatus(400);
-      return;
-    }
-
-    const result = await sessionExerciseRepository.removeExercise(
-      sessionId,
-      sessionExerciseId,
-      userId,
-    );
-
-    if (result === "exercise_not_found") {
-      res.sendStatus(404);
-      return;
-    }
-
-    if (result === "session_not_editable") {
-      res.sendStatus(409);
-      return;
-    }
-
-    res.sendStatus(204);
-  } catch (err) {
-    next(err);
-  }
-};
-
-const updateExerciseRest: RequestHandler<
-  WorkoutSessionExerciseParams,
+const addExercises: RequestHandler<
+  WorkoutSessionIdParams,
   unknown,
-  UpdateExerciseRestBody
+  AddExercisesBody
 > = async (req, res, next) => {
   try {
     const userId = getCurrentUserId(req);
     const sessionId = Number(req.params.id);
-    const sessionExerciseId = Number(req.params.sessionExerciseId);
 
-    if (
-      !Number.isInteger(sessionId) ||
-      sessionId <= 0 ||
-      !Number.isInteger(sessionExerciseId) ||
-      sessionExerciseId <= 0 ||
-      !isAllowedRestSeconds(req.body?.restSeconds)
-    ) {
+    if (!Number.isInteger(sessionId) || sessionId <= 0) {
       res.sendStatus(400);
       return;
     }
 
-    const result = await sessionExerciseRepository.updateExerciseRest(
+    const exerciseIds = req.body?.exerciseIds;
+    const hasOnlyValidExerciseIds =
+      Array.isArray(exerciseIds) &&
+      exerciseIds.length > 0 &&
+      exerciseIds.every(
+        (exerciseId) => Number.isInteger(exerciseId) && exerciseId > 0,
+      );
+
+    if (!hasOnlyValidExerciseIds) {
+      res.sendStatus(400);
+      return;
+    }
+
+    const uniqueExerciseIds = new Set(exerciseIds);
+
+    if (uniqueExerciseIds.size !== exerciseIds.length) {
+      res.sendStatus(400);
+      return;
+    }
+
+    const result = await sessionExerciseRepository.addExercises(
       sessionId,
-      sessionExerciseId,
       userId,
-      req.body.restSeconds,
+      exerciseIds,
     );
 
-    if (result === "exercise_not_found") {
+    if (result === "session_not_found" || result === "exercise_not_found") {
       res.sendStatus(404);
       return;
     }
 
-    if (result === "session_not_editable") {
+    if (result === "session_not_prepared" || result === "duplicate_exercise") {
       res.sendStatus(409);
       return;
     }
 
-    res.sendStatus(204);
+    res.status(201).json({
+      id: sessionId,
+      exerciseIds,
+    });
   } catch (err) {
     next(err);
   }
@@ -171,60 +144,87 @@ const reorderExercises: RequestHandler<
   }
 };
 
-const addExercises: RequestHandler<
-  WorkoutSessionIdParams,
+const updateExerciseRest: RequestHandler<
+  WorkoutSessionExerciseParams,
   unknown,
-  AddExercisesBody
+  UpdateExerciseRestBody
 > = async (req, res, next) => {
   try {
     const userId = getCurrentUserId(req);
     const sessionId = Number(req.params.id);
+    const sessionExerciseId = Number(req.params.sessionExerciseId);
 
-    if (!Number.isInteger(sessionId) || sessionId <= 0) {
+    if (
+      !Number.isInteger(sessionId) ||
+      sessionId <= 0 ||
+      !Number.isInteger(sessionExerciseId) ||
+      sessionExerciseId <= 0 ||
+      !isAllowedRestSeconds(req.body?.restSeconds)
+    ) {
       res.sendStatus(400);
       return;
     }
 
-    const exerciseIds = req.body?.exerciseIds;
-    const hasOnlyValidExerciseIds =
-      Array.isArray(exerciseIds) &&
-      exerciseIds.length > 0 &&
-      exerciseIds.every(
-        (exerciseId) => Number.isInteger(exerciseId) && exerciseId > 0,
-      );
-
-    if (!hasOnlyValidExerciseIds) {
-      res.sendStatus(400);
-      return;
-    }
-
-    const uniqueExerciseIds = new Set(exerciseIds);
-
-    if (uniqueExerciseIds.size !== exerciseIds.length) {
-      res.sendStatus(400);
-      return;
-    }
-
-    const result = await sessionExerciseRepository.addExercises(
+    const result = await sessionExerciseRepository.updateExerciseRest(
       sessionId,
+      sessionExerciseId,
       userId,
-      exerciseIds,
+      req.body.restSeconds,
     );
 
-    if (result === "session_not_found" || result === "exercise_not_found") {
+    if (result === "exercise_not_found") {
       res.sendStatus(404);
       return;
     }
 
-    if (result === "session_not_prepared" || result === "duplicate_exercise") {
+    if (result === "session_not_editable") {
       res.sendStatus(409);
       return;
     }
 
-    res.status(201).json({
-      id: sessionId,
-      exerciseIds,
-    });
+    res.sendStatus(204);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const removeExercise: RequestHandler<WorkoutSessionExerciseParams> = async (
+  req,
+  res,
+  next,
+) => {
+  try {
+    const userId = getCurrentUserId(req);
+    const sessionId = Number(req.params.id);
+    const sessionExerciseId = Number(req.params.sessionExerciseId);
+
+    if (
+      !Number.isInteger(sessionId) ||
+      sessionId <= 0 ||
+      !Number.isInteger(sessionExerciseId) ||
+      sessionExerciseId <= 0
+    ) {
+      res.sendStatus(400);
+      return;
+    }
+
+    const result = await sessionExerciseRepository.removeExercise(
+      sessionId,
+      sessionExerciseId,
+      userId,
+    );
+
+    if (result === "exercise_not_found") {
+      res.sendStatus(404);
+      return;
+    }
+
+    if (result === "session_not_editable") {
+      res.sendStatus(409);
+      return;
+    }
+
+    res.sendStatus(204);
   } catch (err) {
     next(err);
   }
@@ -337,9 +337,9 @@ const browseSets: RequestHandler = async (req, res, next) => {
 
 export default {
   addExercises,
-  removeExercise,
   reorderExercises,
   updateExerciseRest,
+  removeExercise,
   createSet,
   browseSets,
 };
