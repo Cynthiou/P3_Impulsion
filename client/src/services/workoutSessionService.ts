@@ -5,17 +5,6 @@ import type {
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const getWorkoutSessions = async (): Promise<WorkoutSession[]> => {
-  const response = await fetch(`${API_URL}/api/workout-sessions`, {
-    credentials: "include",
-  });
-  if (!response.ok) {
-    throw new Error("Impossible de charger les séances");
-  }
-  const sessions = await response.json();
-  return sessions;
-};
-
 const postWorkoutSession = async (): Promise<number> => {
   const response = await fetch(`${API_URL}/api/workout-sessions`, {
     method: "POST",
@@ -39,6 +28,17 @@ const getWorkoutSessionById = async (
   }
   const session = await response.json();
   return session;
+};
+
+const getPreparedSessions = async (): Promise<WorkoutSession[]> => {
+  const response = await fetch(`${API_URL}/api/workout-sessions`, {
+    credentials: "include",
+  });
+  if (!response.ok) {
+    throw new Error("Impossible de charger les séances");
+  }
+  const sessions = await response.json();
+  return sessions;
 };
 
 const getCurrentSession = async (): Promise<WorkoutSession | null> => {
@@ -86,16 +86,6 @@ const startWorkoutSession = async (sessionId: number) => {
   return { status: "started" };
 };
 
-const completeWorkoutSession = async (sessionId: number): Promise<void> => {
-  const response = await fetch(
-    `${API_URL}/api/workout-sessions/${sessionId}/complete`,
-    { method: "PATCH", credentials: "include" },
-  );
-  if (!response.ok) {
-    throw new Error("Impossible de valider la séance");
-  }
-};
-
 const abandonSession = async (sessionId: number): Promise<void> => {
   const response = await fetch(
     `${API_URL}/api/workout-sessions/${sessionId}/abandon`,
@@ -103,6 +93,16 @@ const abandonSession = async (sessionId: number): Promise<void> => {
   );
   if (!response.ok) {
     throw new Error("Impossible d'abandonner la séance");
+  }
+};
+
+const completeWorkoutSession = async (sessionId: number): Promise<void> => {
+  const response = await fetch(
+    `${API_URL}/api/workout-sessions/${sessionId}/complete`,
+    { method: "PATCH", credentials: "include" },
+  );
+  if (!response.ok) {
+    throw new Error("Impossible de valider la séance");
   }
 };
 
@@ -117,13 +117,13 @@ const deleteWorkoutSession = async (sessionId: number): Promise<void> => {
 };
 
 export default {
-  getWorkoutSessions,
   postWorkoutSession,
   getWorkoutSessionById,
+  getPreparedSessions,
   getCurrentSession,
-  startWorkoutSession,
   getSessionSummary,
-  completeWorkoutSession,
+  startWorkoutSession,
   abandonSession,
+  completeWorkoutSession,
   deleteWorkoutSession,
 };
