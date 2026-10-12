@@ -179,7 +179,7 @@ const start: RequestHandler = async (req, res, next) => {
     );
 
     if (affectedRows === 0) {
-      res.sendStatus(409);
+      res.status(409).json({ currentSessionId: null });
       return;
     }
 
