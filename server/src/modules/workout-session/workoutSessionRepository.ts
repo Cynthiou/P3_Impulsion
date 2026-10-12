@@ -52,7 +52,7 @@ class WorkoutSessionRepository {
     return rows;
   }
 
-  async readCurrent(userId: number) {
+  async readCurrentSession(userId: number) {
     const [rows] = await databaseClient.query<Rows>(
       `SELECT
         id,
@@ -75,7 +75,7 @@ class WorkoutSessionRepository {
     return rows[0];
   }
 
-  async readSummary(sessionId: number, userId: number) {
+  async readSessionSummary(sessionId: number, userId: number) {
     const [rows] = await databaseClient.query<Rows>(
       `SELECT
         id,

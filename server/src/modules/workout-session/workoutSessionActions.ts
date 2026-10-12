@@ -80,7 +80,7 @@ const browse: RequestHandler = async (req, res, next) => {
 const readCurrent: RequestHandler = async (req, res, next) => {
   try {
     const userId = getCurrentUserId(req);
-    const session = await workoutSessionRepository.readCurrent(userId);
+    const session = await workoutSessionRepository.readCurrentSession(userId);
 
     res.json(session ?? null);
   } catch (err) {
@@ -98,7 +98,7 @@ const readSummary: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    const summary = await workoutSessionRepository.readSummary(
+    const summary = await workoutSessionRepository.readSessionSummary(
       sessionId,
       userId,
     );
@@ -154,7 +154,8 @@ const start: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    const currentSession = await workoutSessionRepository.readCurrent(userId);
+    const currentSession =
+      await workoutSessionRepository.readCurrentSession(userId);
 
     if (currentSession) {
       res.status(409).json({ currentSessionId: currentSession.id });
