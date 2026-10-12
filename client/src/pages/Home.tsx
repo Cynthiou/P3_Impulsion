@@ -1,6 +1,8 @@
+import { useContext } from "react";
 import { useNavigate } from "react-router";
-import HomeSessionAction from "../components/workout-session/HomeSessionAction";
+import HomeActionButton from "../components/home/HomeActionButton";
 import PreparedSessionsList from "../components/workout-session/PreparedSessionsList";
+import { CurrentSessionContext } from "../contexts/CurrentSessionContext";
 import useCreatePreparedSession from "../hooks/workout-session/useCreatePreparedSession";
 import usePreparedSessions from "../hooks/workout-session/usePreparedSessions";
 
@@ -8,7 +10,12 @@ const Home = () => {
   const { sessions, loading, error } = usePreparedSessions();
   const { createPreparedSession, loading: createLoading } =
     useCreatePreparedSession();
+  const currentSessionContext = useContext(CurrentSessionContext);
   const navigate = useNavigate();
+
+  if (currentSessionContext === null) {
+    throw new Error("Le contexte de la séance en cours est indisponible");
+  }
 
   if (loading) {
     return <p>Chargement...</p>;
@@ -18,18 +25,19 @@ const Home = () => {
     return <p>{error}</p>;
   }
 
+  const currentSession = currentSessionContext.currentSession;
   const draftSession = sessions.find((session) => session.exerciseCount === 0);
 
   const handleSessionAction = async () => {
-    if (draftSession) {
-      navigate(`/sessions/${draftSession.id}`);
+    if (currentSession !== null) {
+      navigate(`/sessions/${currentSession.id}`);
       return;
     }
 
-    const newSessionId = await createPreparedSession();
+    const sessionId = await createPreparedSession();
 
-    if (newSessionId !== null) {
-      navigate(`/sessions/${newSessionId}`);
+    if (sessionId !== null) {
+      navigate(`/sessions/${sessionId}`);
     }
   };
 
@@ -41,15 +49,9 @@ const Home = () => {
           <span className="text-info">ta séance</span> ?
         </h1>
 
-        <HomeSessionAction
-          subtitle={
-            draftSession
-              ? "Ta séance est créée, ajoute maintenant tes exercices."
-              : "Ajoute tes exercices, puis démarre quand tu veux."
-          }
-          buttonLabel={
-            draftSession ? "AJOUTER DES EXERCICES" : "CRÉER UNE SÉANCE"
-          }
+        <HomeActionButton
+          currentSession={currentSession}
+          hasDraft={draftSession !== undefined}
           onAction={handleSessionAction}
           isLoading={createLoading}
         />
