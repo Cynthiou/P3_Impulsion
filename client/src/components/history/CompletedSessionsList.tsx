@@ -1,11 +1,11 @@
 import type { MonthGroup } from "../../utils/groupSessionsByMonth";
-import SessionHistoryCard from "./SessionHistoryCard";
+import CompletedSessionCard from "./CompletedSessionCard";
 
-type SessionMonthGroupProps = {
+type CompletedSessionsListProps = {
   group: MonthGroup;
 };
 
-const SessionMonthGroup = ({ group }: SessionMonthGroupProps) => {
+const CompletedSessionsList = ({ group }: CompletedSessionsListProps) => {
   return (
     <section>
       <h2 className="font-semibold text-accent text-xs uppercase tracking-widest">
@@ -15,7 +15,7 @@ const SessionMonthGroup = ({ group }: SessionMonthGroupProps) => {
       <ul className="mt-3 grid gap-3">
         {group.sessions.map((session) => (
           <li key={session.id}>
-            <SessionHistoryCard session={session} />
+            <CompletedSessionCard session={session} />
           </li>
         ))}
       </ul>
@@ -23,4 +23,4 @@ const SessionMonthGroup = ({ group }: SessionMonthGroupProps) => {
   );
 };
 
-export default SessionMonthGroup;
+export default CompletedSessionsList;

@@ -8,13 +8,13 @@ import { formatDuration } from "../../utils/formatDuration";
 import { formatFullDate } from "../../utils/formatSessionDate";
 import { groupSetsByExercise } from "../../utils/groupSetsByExercise";
 import ExerciseDetailSheet from "../exercise/ExerciseDetailSheet";
-import CompletedExerciseBlock from "./CompletedExerciseBlock";
+import CompletedExerciseCard from "./CompletedExerciseCard";
 
-type CompletedSessionViewProps = {
+type CompletedSessionDetailProps = {
   sessionId: number;
 };
 
-const CompletedSessionView = ({ sessionId }: CompletedSessionViewProps) => {
+const CompletedSessionDetail = ({ sessionId }: CompletedSessionDetailProps) => {
   const { session, loading, error } = useWorkoutSessionDetail(sessionId);
 
   const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(
@@ -88,7 +88,7 @@ const CompletedSessionView = ({ sessionId }: CompletedSessionViewProps) => {
 
       <div className="flex flex-col gap-4">
         {exercisesWithSets.map((exercise) => (
-          <CompletedExerciseBlock
+          <CompletedExerciseCard
             key={exercise.sessionExerciseId}
             exercise={exercise}
             onOpenDetail={setSelectedExerciseId}
@@ -104,4 +104,4 @@ const CompletedSessionView = ({ sessionId }: CompletedSessionViewProps) => {
   );
 };
 
-export default CompletedSessionView;
+export default CompletedSessionDetail;

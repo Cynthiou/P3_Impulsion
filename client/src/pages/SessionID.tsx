@@ -5,7 +5,7 @@ import TrashIcon from "../assets/icons/actions/trash.svg?react";
 import ChevronLeftIcon from "../assets/icons/chevrons/chevron-left.svg?react";
 import BarbellIcon from "../assets/icons/navigation/barbell.svg?react";
 import ExerciseDetailSheet from "../components/exercise/ExerciseDetailSheet";
-import CompletedSessionView from "../components/history/CompletedSessionView";
+import CompletedSessionDetail from "../components/history/CompletedSessionDetail";
 import PreparedExerciseCard from "../components/session-exercise/PreparedExerciseCard";
 import AbandonSessionModal from "../components/workout-session/AbandonSessionModal";
 import Chrono from "../components/workout-session/Chrono";
@@ -126,7 +126,7 @@ function SessionId() {
   }
 
   if (session.status === "completed") {
-    return <CompletedSessionView sessionId={session.id} />;
+    return <CompletedSessionDetail sessionId={session.id} />;
   }
 
   const formattedDate = formatFullDate(session.createdAt);

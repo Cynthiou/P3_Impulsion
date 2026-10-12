@@ -1,7 +1,7 @@
 import { useState } from "react";
+import CompletedSessionsList from "../components/history/CompletedSessionsList";
 import HistoryFilters from "../components/history/HistoryFilters";
 import HistoryTabs from "../components/history/HistoryTabs";
-import SessionMonthGroup from "../components/history/SessionMonthGroup";
 import useHistorySessions from "../hooks/history/useHistorySessions";
 import type { HistoryFilter } from "../types/filters";
 import { formatPlural } from "../utils/formatPlural";
@@ -57,7 +57,7 @@ const History = () => {
   const countText = formatPlural(filteredSessions.length, "séance");
 
   const monthList = monthGroups.map((monthGroup) => (
-    <SessionMonthGroup key={monthGroup.title} group={monthGroup} />
+    <CompletedSessionsList key={monthGroup.title} group={monthGroup} />
   ));
 
   return (

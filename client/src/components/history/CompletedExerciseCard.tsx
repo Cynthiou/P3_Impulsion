@@ -3,15 +3,15 @@ import type { DetailExerciseWithSets } from "../../types/workoutSession";
 import { formatReps } from "../../utils/formatReps";
 import { formatWeight } from "../../utils/formatWeight";
 
-type CompletedExerciseBlockProps = {
+type CompletedExerciseCardProps = {
   exercise: DetailExerciseWithSets;
   onOpenDetail: (exerciseId: number) => void;
 };
 
-const CompletedExerciseBlock = ({
+const CompletedExerciseCard = ({
   exercise,
   onOpenDetail,
-}: CompletedExerciseBlockProps) => {
+}: CompletedExerciseCardProps) => {
   const hasSets = exercise.sets.length > 0;
 
   return (
@@ -64,4 +64,4 @@ const CompletedExerciseBlock = ({
   );
 };
 
-export default CompletedExerciseBlock;
+export default CompletedExerciseCard;

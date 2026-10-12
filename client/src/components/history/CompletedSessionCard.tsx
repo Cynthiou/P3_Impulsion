@@ -5,11 +5,11 @@ import { formatDuration } from "../../utils/formatDuration";
 import { formatPlural } from "../../utils/formatPlural";
 import { formatFullDate } from "../../utils/formatSessionDate";
 
-type SessionHistoryCardProps = {
+type CompletedSessionCardProps = {
   session: WorkoutSessionHistory;
 };
 
-const SessionHistoryCard = ({ session }: SessionHistoryCardProps) => {
+const CompletedSessionCard = ({ session }: CompletedSessionCardProps) => {
   const formattedDate = formatFullDate(session.date);
   const durationText = formatDuration(session.durationSeconds);
 
@@ -34,4 +34,4 @@ const SessionHistoryCard = ({ session }: SessionHistoryCardProps) => {
   );
 };
 
-export default SessionHistoryCard;
+export default CompletedSessionCard;
