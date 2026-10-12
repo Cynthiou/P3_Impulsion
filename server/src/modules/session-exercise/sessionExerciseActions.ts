@@ -286,7 +286,7 @@ const createSet: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    if (owner.status !== "in_progress") {
+    if (!["prepared", "in_progress"].includes(owner.status)) {
       res.sendStatus(409);
       return;
     }

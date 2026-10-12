@@ -443,19 +443,28 @@ describe("US17 - Ajouter et enregistrer une série", () => {
     expect(response.status).toBe(404);
   });
 
-  test("refuse l'ajout si la séance n'est pas en cours", async () => {
+  test("ajoute une série à une séance préparée", async () => {
     jest
       .spyOn(sessionExerciseRepository, "readSessionExerciseOwner")
       .mockResolvedValue({ userId: 1, status: "prepared" } as never);
 
-    const createSetMock = jest.spyOn(sessionExerciseRepository, "createSet");
+    const createSetMock = jest
+      .spyOn(sessionExerciseRepository, "createSet")
+      .mockResolvedValue({
+        id: 12,
+        setNumber: 1,
+        repetitions: 10,
+        weightKg: null,
+        durationSeconds: null,
+        isCompleted: false,
+      });
 
     const response = await authenticatedRequest
       .post("/api/session-exercises/18/sets")
       .send({ repetitions: 10 });
 
-    expect(response.status).toBe(409);
-    expect(createSetMock).not.toHaveBeenCalled();
+    expect(response.status).toBe(201);
+    expect(createSetMock).toHaveBeenCalledWith(18, 10, null, null);
   });
 
   test("calcule le prochain numéro et insère la série sans transaction", async () => {

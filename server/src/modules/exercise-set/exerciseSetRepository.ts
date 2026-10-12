@@ -70,7 +70,7 @@ class ExerciseSetRepository {
            exercise_set.is_completed = ?
        WHERE exercise_set.id = ?
          AND workout_session.user_id = ?
-         AND workout_session.status = 'in_progress'`,
+         AND workout_session.status IN ('prepared', 'in_progress')`,
       [
         values.repetitions,
         values.weightKg,

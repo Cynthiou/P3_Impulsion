@@ -121,7 +121,7 @@ describe("US18 - Marquer une série comme réalisée", () => {
     expect(response.status).toBe(404);
   });
 
-  test.each(["prepared", "completed"])(
+  test.each(["completed", "abandoned"])(
     "refuse la modification d'une séance %s",
     async (sessionStatus) => {
       jest.spyOn(exerciseSetRepository, "readForUser").mockResolvedValue({
@@ -142,7 +142,59 @@ describe("US18 - Marquer une série comme réalisée", () => {
     },
   );
 
-  test("limite la mise à jour à l'utilisateur et à sa séance en cours", async () => {
+  test("modifie les valeurs d'une série préparée sans la valider", async () => {
+    jest.spyOn(exerciseSetRepository, "readForUser").mockResolvedValue({
+      id: 12,
+      setNumber: 2,
+      repetitions: 8,
+      weightKg: 40,
+      durationSeconds: null,
+      isCompleted: false,
+      sessionStatus: "prepared",
+    });
+    const updateMock = jest
+      .spyOn(exerciseSetRepository, "update")
+      .mockResolvedValue(1);
+
+    const response = await authenticatedRequest
+      .patch("/api/exercise-sets/12")
+      .send({
+        repetitions: 10,
+        weightKg: 42.5,
+        durationSeconds: null,
+        isCompleted: false,
+      });
+
+    expect(response.status).toBe(200);
+    expect(updateMock).toHaveBeenCalledWith(12, 1, {
+      repetitions: 10,
+      weightKg: 42.5,
+      durationSeconds: null,
+      isCompleted: false,
+    });
+  });
+
+  test("refuse de valider une série avant le démarrage de la séance", async () => {
+    jest.spyOn(exerciseSetRepository, "readForUser").mockResolvedValue({
+      id: 12,
+      setNumber: 2,
+      repetitions: 8,
+      weightKg: 40,
+      durationSeconds: null,
+      isCompleted: false,
+      sessionStatus: "prepared",
+    });
+    const updateMock = jest.spyOn(exerciseSetRepository, "update");
+
+    const response = await authenticatedRequest
+      .patch("/api/exercise-sets/12")
+      .send({ repetitions: 10, isCompleted: true });
+
+    expect(response.status).toBe(409);
+    expect(updateMock).not.toHaveBeenCalled();
+  });
+
+  test("limite la mise à jour à l'utilisateur et à une séance modifiable", async () => {
     const queryMock = jest
       .spyOn(databaseClient, "query")
       .mockResolvedValue([{ affectedRows: 1 }, []] as never);
@@ -159,7 +211,9 @@ describe("US18 - Marquer une série comme réalisée", () => {
     const [sql, params] = queryMock.mock.calls[0];
 
     expect(String(sql)).toMatch(/workout_session\.user_id\s*=\s*\?/);
-    expect(String(sql)).toMatch(/status\s*=\s*'in_progress'/);
+    expect(String(sql)).toMatch(
+      /status\s+IN\s+\('prepared',\s*'in_progress'\)/,
+    );
     expect(params).toEqual([10, 42.5, null, true, 12, 1]);
   });
 
