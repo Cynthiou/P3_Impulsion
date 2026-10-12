@@ -18,6 +18,11 @@ const Pagination = ({ page, pageCount, onPageChange }: PaginationProps) => {
     return null;
   }
 
+  const isFirstPage = page === 1;
+  const isLastPage = page === pageCount;
+  const previousPage = page - 1;
+  const nextPage = page + 1;
+
   const goToPage = (newPage: number) => {
     onPageChange(newPage);
 
@@ -38,20 +43,20 @@ const Pagination = ({ page, pageCount, onPageChange }: PaginationProps) => {
       <button
         type="button"
         aria-label="Page précédente"
-        onClick={() => goToPage(page - 1)}
-        disabled={page === 1}
+        onClick={() => goToPage(previousPage)}
+        disabled={isFirstPage}
         className={chevronClassName}
       >
         <ChevronLeftIcon aria-hidden="true" className="size-4" />
       </button>
 
-      {page > 1 && (
+      {!isFirstPage && (
         <button
           type="button"
-          onClick={() => goToPage(page - 1)}
+          onClick={() => goToPage(previousPage)}
           className={buttonClassName}
         >
-          {page - 1}
+          {previousPage}
         </button>
       )}
 
@@ -63,21 +68,21 @@ const Pagination = ({ page, pageCount, onPageChange }: PaginationProps) => {
         {page}
       </button>
 
-      {page < pageCount && (
+      {!isLastPage && (
         <button
           type="button"
-          onClick={() => goToPage(page + 1)}
+          onClick={() => goToPage(nextPage)}
           className={buttonClassName}
         >
-          {page + 1}
+          {nextPage}
         </button>
       )}
 
       <button
         type="button"
         aria-label="Page suivante"
-        onClick={() => goToPage(page + 1)}
-        disabled={page === pageCount}
+        onClick={() => goToPage(nextPage)}
+        disabled={isLastPage}
         className={chevronClassName}
       >
         <ChevronRightIcon aria-hidden="true" className="size-4" />
