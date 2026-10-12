@@ -660,7 +660,7 @@ describe("US23 - Historique des séances", () => {
       .spyOn(databaseClient, "query")
       .mockResolvedValue([[], []] as never);
 
-    await historyRepository.readAllCompleted(1);
+    await historyRepository.readCompletedSessions(1);
 
     const [sql, params] = queryMock.mock.calls[0];
 
@@ -675,7 +675,7 @@ describe("US23 - Historique des séances", () => {
       .spyOn(databaseClient, "query")
       .mockResolvedValue([[], []] as never);
 
-    const sessions = await historyRepository.readAllCompleted(1);
+    const sessions = await historyRepository.readCompletedSessions(1);
 
     expect(sessions).toEqual([]);
     expect(queryMock).toHaveBeenCalledTimes(1);
@@ -690,7 +690,7 @@ describe("US23 - Historique des séances", () => {
       [],
     ] as never);
 
-    const sessions = await historyRepository.readAllCompleted(1);
+    const sessions = await historyRepository.readCompletedSessions(1);
 
     expect(sessions).toEqual([
       { id: 10, date: "2026-10-03T16:00:00.000Z", durationSeconds: 3660 },
@@ -699,7 +699,7 @@ describe("US23 - Historique des séances", () => {
   });
 
   test("renvoie l'historique de l'utilisateur connecté", async () => {
-    jest.spyOn(historyRepository, "readAllCompleted").mockResolvedValue([
+    jest.spyOn(historyRepository, "readCompletedSessions").mockResolvedValue([
       {
         id: 10,
         date: "2026-10-03T16:00:00.000Z",
@@ -718,7 +718,7 @@ describe("US23 - Historique des séances", () => {
 
   test("renvoie un tableau vide, et non une erreur, quand il n'y a aucune séance", async () => {
     jest
-      .spyOn(historyRepository, "readAllCompleted")
+      .spyOn(historyRepository, "readCompletedSessions")
       .mockResolvedValue([] as never);
 
     const response = await authenticatedRequest.get(
@@ -731,7 +731,7 @@ describe("US23 - Historique des séances", () => {
 
   test("demande l'historique du seul utilisateur authentifié", async () => {
     const repositoryMock = jest
-      .spyOn(historyRepository, "readAllCompleted")
+      .spyOn(historyRepository, "readCompletedSessions")
       .mockResolvedValue([] as never);
 
     await authenticatedRequest.get("/api/workout-sessions/history");
@@ -741,7 +741,7 @@ describe("US23 - Historique des séances", () => {
 
   test("refuse l'accès sans cookie d'authentification", async () => {
     const repositoryMock = jest
-      .spyOn(historyRepository, "readAllCompleted")
+      .spyOn(historyRepository, "readCompletedSessions")
       .mockResolvedValue([] as never);
 
     const response = await request(app).get("/api/workout-sessions/history");
@@ -788,7 +788,7 @@ describe("US24 - Consulter le détail d'une séance", () => {
       .spyOn(databaseClient, "query")
       .mockResolvedValue([[], []] as never);
 
-    await historyRepository.readCompletedSets(10);
+    await historyRepository.readSessionCompletedSets(10);
 
     const [sql, params] = queryMock.mock.calls[0];
 
@@ -812,7 +812,7 @@ describe("US24 - Consulter le détail d'une séance", () => {
         { sessionExerciseId: 1, id: 4, name: "Développé couché", position: 1 },
       ] as never);
     jest
-      .spyOn(historyRepository, "readCompletedSets")
+      .spyOn(historyRepository, "readSessionCompletedSets")
       .mockResolvedValue([
         { sessionExerciseId: 1, setNumber: 1, repetitions: 8, weightKg: 60 },
       ] as never);
@@ -832,7 +832,7 @@ describe("US24 - Consulter le détail d'une séance", () => {
       .spyOn(historyRepository, "readCompletedSession")
       .mockResolvedValue(undefined as never);
     const exercisesMock = jest.spyOn(historyRepository, "readSessionExercises");
-    const setsMock = jest.spyOn(historyRepository, "readCompletedSets");
+    const setsMock = jest.spyOn(historyRepository, "readSessionCompletedSets");
 
     const response = await authenticatedRequest.get(
       "/api/workout-sessions/999/details",

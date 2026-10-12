@@ -5,7 +5,7 @@ import historyRepository from "./historyRepository";
 const browseHistory: RequestHandler = async (req, res, next) => {
   try {
     const userId = getCurrentUserId(req);
-    const sessions = await historyRepository.readAllCompleted(userId);
+    const sessions = await historyRepository.readCompletedSessions(userId);
 
     res.json(sessions);
   } catch (err) {
@@ -34,13 +34,13 @@ const readDetail: RequestHandler = async (req, res, next) => {
     }
 
     const exercises = await historyRepository.readSessionExercises(session.id);
-    const sets = await historyRepository.readCompletedSets(session.id);
+    const sets = await historyRepository.readSessionCompletedSets(session.id);
 
     res.json({
       id: session.id,
       startedAt: session.startedAt,
-      durationSeconds: Number(session.durationSeconds),
-      exerciseCount: Number(session.exerciseCount),
+      durationSeconds: session.durationSeconds,
+      exerciseCount: session.exerciseCount,
       exercises: exercises,
       sets: sets,
     });

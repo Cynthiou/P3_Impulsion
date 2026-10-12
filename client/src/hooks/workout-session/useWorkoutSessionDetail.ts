@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import workoutSessionService from "../../services/workoutSessionService";
+import historyService from "../../services/historyService";
 import type { WorkoutSessionDetail } from "../../types/workoutSession";
 
 const useWorkoutSessionDetail = (sessionId: number) => {
@@ -11,7 +11,7 @@ const useWorkoutSessionDetail = (sessionId: number) => {
     const loadSession = async () => {
       try {
         const sessionData =
-          await workoutSessionService.getWorkoutSessionDetail(sessionId);
+          await historyService.getWorkoutSessionDetail(sessionId);
         setSession(sessionData);
       } catch {
         setError("Impossible de charger la séance");

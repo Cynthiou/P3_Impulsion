@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import workoutSessionService from "../../services/workoutSessionService";
+import historyService from "../../services/historyService";
 import type { WorkoutSessionHistory } from "../../types/workoutSession";
 
 const useHistorySessions = () => {
@@ -13,7 +13,7 @@ const useHistorySessions = () => {
       setError(null);
 
       try {
-        const sessionsData = await workoutSessionService.getHistory();
+        const sessionsData = await historyService.getHistory();
         setSessions(sessionsData);
       } catch {
         setError("Impossible de charger l'historique");
