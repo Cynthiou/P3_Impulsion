@@ -122,6 +122,7 @@ const reorderExercises: RequestHandler<
       res.sendStatus(400);
       return;
     }
+
     const sessionExerciseIds = req.body?.sessionExerciseIds;
     const hasOnlyValidSessionExerciseIds =
       Array.isArray(sessionExerciseIds) &&
@@ -137,10 +138,12 @@ const reorderExercises: RequestHandler<
     }
 
     const uniqueSessionExerciseIds = new Set(sessionExerciseIds);
+
     if (uniqueSessionExerciseIds.size !== sessionExerciseIds.length) {
       res.sendStatus(400);
       return;
     }
+
     const result = await sessionExerciseRepository.reorderExercises(
       sessionId,
       userId,
@@ -196,10 +199,12 @@ const addExercises: RequestHandler<
     }
 
     const uniqueExerciseIds = new Set(exerciseIds);
+
     if (uniqueExerciseIds.size !== exerciseIds.length) {
       res.sendStatus(400);
       return;
     }
+
     const result = await sessionExerciseRepository.addExercises(
       sessionId,
       userId,
@@ -318,6 +323,7 @@ const browseSets: RequestHandler = async (req, res, next) => {
       res.sendStatus(404);
       return;
     }
+
     const sets =
       await sessionExerciseRepository.readSetsBySessionExercise(
         sessionExerciseId,

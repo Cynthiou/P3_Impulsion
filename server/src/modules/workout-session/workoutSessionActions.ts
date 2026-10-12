@@ -16,6 +16,7 @@ const add: RequestHandler = async (req, res, next) => {
       res.status(200).json({ id: emptySession.id });
       return;
     }
+
     const sessionId = await workoutSessionRepository.createSession(userId);
 
     res.status(201).json({ id: sessionId });
@@ -47,6 +48,7 @@ const read: RequestHandler = async (req, res, next) => {
     const exercises = await sessionExerciseRepository.readSessionExercises(
       session.id,
     );
+
     const sets = await workoutSessionRepository.readCompletedSets(session.id);
 
     res.json({

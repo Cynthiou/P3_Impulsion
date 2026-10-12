@@ -8,6 +8,7 @@ class WorkoutSessionRepository {
         VALUES (?, 'prepared')`,
       [userId],
     );
+
     return result.insertId;
   }
 
@@ -160,6 +161,7 @@ class WorkoutSessionRepository {
         AND status = 'prepared'`,
       [sessionId, userId],
     );
+
     return result.affectedRows;
   }
 }

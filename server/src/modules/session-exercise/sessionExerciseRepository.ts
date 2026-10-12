@@ -79,6 +79,7 @@ class SessionExerciseRepository {
        VALUES ?`,
       [values],
     );
+
     return "created";
   }
 
@@ -232,6 +233,7 @@ class SessionExerciseRepository {
         [newPosition, sessionExerciseId, sessionId],
       );
     }
+
     return "reordered";
   }
 
