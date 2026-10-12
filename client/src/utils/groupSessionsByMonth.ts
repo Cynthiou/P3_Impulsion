@@ -1,4 +1,4 @@
-import type { WorkoutSessionHistory } from "../types/workoutSession";
+import type { WorkoutSessionHistory } from "../types/history";
 
 export type MonthGroup = {
   title: string;

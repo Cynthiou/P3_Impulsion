@@ -1,10 +1,10 @@
 import { useParams } from "react-router";
-import CompletedSessionView from "../components/session-detail/CompletedSessionView";
+import CompletedSessionDetail from "../components/history/CompletedSessionDetail";
 
-function HistoryDetail() {
+const HistoryDetail = () => {
   const { id } = useParams();
 
-  return <CompletedSessionView sessionId={Number(id)} />;
-}
+  return <CompletedSessionDetail sessionId={Number(id)} />;
+};
 
 export default HistoryDetail;

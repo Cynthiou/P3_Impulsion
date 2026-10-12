@@ -1,20 +1,20 @@
 import { useState } from "react";
 import ArrowRightIcon from "../assets/icons/arrows/arrow-right.svg?react";
 import EmptyState from "../components/EmptyState";
-import ExerciseCard from "../components/ExerciseCard";
-import ExerciseCardSkeleton from "../components/ExerciseCardSkeleton";
-import ExerciseDetailSheet from "../components/ExerciseDetailSheet";
 import NoResultsState from "../components/NoResultsState";
 import Pagination from "../components/Pagination";
-import SearchField from "../components/SearchField";
-import SelectionCart from "../components/SelectionCart";
+import ExerciseCard from "../components/exercise/ExerciseCard";
+import ExerciseCardSkeleton from "../components/exercise/ExerciseCardSkeleton";
+import ExerciseDetailSheet from "../components/exercise/ExerciseDetailSheet";
+import SearchField from "../components/exercise/SearchField";
+import SelectionCart from "../components/exercise/SelectionCart";
 import LocalErrorState from "../components/feedback/LocalErrorState";
 import CategoryIcon from "../components/filters/CategoryIcon";
 import EquipmentIcon from "../components/filters/EquipmentIcon";
 import FilterButton from "../components/filters/FilterButton";
 import FilterGrid from "../components/filters/FilterGrid";
 import LevelIcon from "../components/filters/LevelIcon";
-import useExercises from "../hooks/useExercises";
+import useExercises from "../hooks/exercise/useExercises";
 import useFilters from "../hooks/useFilters";
 
 const SKELETON_IDS = [
@@ -78,13 +78,13 @@ function Exercises({
 
   const [openFilter, setOpenFilter] = useState<string | null>(null);
 
-  function toggleFilter(name: string) {
+  const toggleFilter = (name: string) => {
     if (openFilter === name) {
       setOpenFilter(null);
     } else {
       setOpenFilter(name);
     }
-  }
+  };
 
   const showFilterBox = openFilter !== null;
 

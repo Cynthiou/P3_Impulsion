@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import historyService from "../../services/historyService";
-import type { WorkoutSessionHistory } from "../../types/workoutSession";
+import type { WorkoutSessionHistory } from "../../types/history";
 
 const useHistorySessions = () => {
   const [sessions, setSessions] = useState<WorkoutSessionHistory[]>([]);

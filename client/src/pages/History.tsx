@@ -1,12 +1,13 @@
 import { useState } from "react";
+import CompletedSessionsList from "../components/history/CompletedSessionsList";
 import HistoryFilters from "../components/history/HistoryFilters";
 import HistoryTabs from "../components/history/HistoryTabs";
-import SessionMonthGroup from "../components/history/SessionMonthGroup";
 import useHistorySessions from "../hooks/history/useHistorySessions";
 import type { HistoryFilter } from "../types/filters";
+import { formatPlural } from "../utils/formatPlural";
 import { groupSessionsByMonth } from "../utils/groupSessionsByMonth";
 
-function History() {
+const History = () => {
   const { sessions, loading, error } = useHistorySessions();
   const [filter, setFilter] = useState<HistoryFilter>("all");
 
@@ -53,14 +54,10 @@ function History() {
 
   const monthGroups = groupSessionsByMonth(filteredSessions);
 
-  let countText = `${filteredSessions.length} séances`;
-
-  if (filteredSessions.length <= 1) {
-    countText = `${filteredSessions.length} séance`;
-  }
+  const countText = formatPlural(filteredSessions.length, "séance");
 
   const monthList = monthGroups.map((monthGroup) => (
-    <SessionMonthGroup key={monthGroup.title} group={monthGroup} />
+    <CompletedSessionsList key={monthGroup.title} group={monthGroup} />
   ));
 
   return (
@@ -86,6 +83,6 @@ function History() {
       <div className="mt-6 grid gap-6">{monthList}</div>
     </section>
   );
-}
+};
 
 export default History;

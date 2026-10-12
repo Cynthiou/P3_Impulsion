@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router";
 import { useMessages } from "../contexts/MessageContext";
-import useAddExercisesToSession from "../hooks/workout-session/useAddExercisesToSession";
+import useAddExercisesToSession from "../hooks/session-exercise/useAddExercisesToSession";
 import useWorkoutSession from "../hooks/workout-session/useWorkoutSession";
 import Exercises from "./Exercises";
 

@@ -2,7 +2,7 @@ import type {
   CompletedSet,
   DetailExercise,
   DetailExerciseWithSets,
-} from "../types/workoutSession";
+} from "../types/history";
 
 export const groupSetsByExercise = (
   exercises: DetailExercise[],

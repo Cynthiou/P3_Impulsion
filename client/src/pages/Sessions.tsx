@@ -1,10 +1,10 @@
 import { useContext } from "react";
-import CurrentSessionCard from "../components/CurrentSessionCard";
-import PreparedSessionsList from "../components/PreparedSessionsList";
+import CurrentSessionCard from "../components/workout-session/CurrentSessionCard";
+import PreparedSessionsList from "../components/workout-session/PreparedSessionsList";
 import { CurrentSessionContext } from "../contexts/CurrentSessionContext";
 import usePreparedSessions from "../hooks/workout-session/usePreparedSessions";
 
-function Sessions() {
+const Sessions = () => {
   const { sessions, loading, error } = usePreparedSessions();
   const context = useContext(CurrentSessionContext);
 
@@ -33,6 +33,6 @@ function Sessions() {
       <PreparedSessionsList sessions={sessions} />
     </div>
   );
-}
+};
 
 export default Sessions;
