@@ -6,6 +6,7 @@ import type {
   CreateExerciseSet,
   ExerciseSet,
 } from "../../types/workoutSession";
+import { formatWeight } from "../../utils/formatWeight";
 
 type ExerciseSetManagerProps = {
   sessionExerciseId: number;
@@ -201,9 +202,7 @@ function ExerciseSetManager({
                   {set.repetitions ?? "–"}
                 </td>
                 <td className="py-2.5 pr-3 font-semibold">
-                  {set.weightKg === null
-                    ? "–"
-                    : `${Number(set.weightKg).toLocaleString("fr-FR")} kg`}
+                  {formatWeight(set.weightKg)}
                 </td>
                 <td className="py-2.5 font-semibold">
                   {set.durationSeconds === null

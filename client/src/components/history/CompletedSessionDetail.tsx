@@ -6,6 +6,7 @@ import useWorkoutSessionDetail from "../../hooks/history/useWorkoutSessionDetail
 import { calculateTotalVolume } from "../../utils/calculateTotalVolume";
 import { formatDuration } from "../../utils/formatDuration";
 import { formatFullDate } from "../../utils/formatSessionDate";
+import { formatWeight } from "../../utils/formatWeight";
 import { groupSetsByExercise } from "../../utils/groupSetsByExercise";
 import ExerciseDetailSheet from "../exercise/ExerciseDetailSheet";
 import CompletedExerciseCard from "./CompletedExerciseCard";
@@ -37,7 +38,7 @@ const CompletedSessionDetail = ({ sessionId }: CompletedSessionDetailProps) => {
   const durationText = formatDuration(session.durationSeconds);
   const exerciseCount = session.exerciseCount;
   const totalVolumeKg = calculateTotalVolume(session.sets);
-  const volumeText = `${totalVolumeKg.toLocaleString("fr-FR")} kg`;
+  const volumeText = formatWeight(totalVolumeKg);
   const exercisesWithSets = groupSetsByExercise(
     session.exercises,
     session.sets,
