@@ -8,10 +8,10 @@ type CompletedExerciseBlockProps = {
   onOpenDetail: (exerciseId: number) => void;
 };
 
-function CompletedExerciseBlock({
+const CompletedExerciseBlock = ({
   exercise,
   onOpenDetail,
-}: CompletedExerciseBlockProps) {
+}: CompletedExerciseBlockProps) => {
   const hasSets = exercise.sets.length > 0;
 
   return (
@@ -62,6 +62,6 @@ function CompletedExerciseBlock({
       )}
     </article>
   );
-}
+};
 
 export default CompletedExerciseBlock;

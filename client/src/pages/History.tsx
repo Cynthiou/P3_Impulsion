@@ -7,7 +7,7 @@ import type { HistoryFilter } from "../types/filters";
 import { formatPlural } from "../utils/formatPlural";
 import { groupSessionsByMonth } from "../utils/groupSessionsByMonth";
 
-function History() {
+const History = () => {
   const { sessions, loading, error } = useHistorySessions();
   const [filter, setFilter] = useState<HistoryFilter>("all");
 
@@ -83,6 +83,6 @@ function History() {
       <div className="mt-6 grid gap-6">{monthList}</div>
     </section>
   );
-}
+};
 
 export default History;

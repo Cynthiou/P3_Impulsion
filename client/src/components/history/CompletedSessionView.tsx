@@ -14,7 +14,7 @@ type CompletedSessionViewProps = {
   sessionId: number;
 };
 
-function CompletedSessionView({ sessionId }: CompletedSessionViewProps) {
+const CompletedSessionView = ({ sessionId }: CompletedSessionViewProps) => {
   const { session, loading, error } = useWorkoutSessionDetail(sessionId);
 
   const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(
@@ -102,6 +102,6 @@ function CompletedSessionView({ sessionId }: CompletedSessionViewProps) {
       />
     </main>
   );
-}
+};
 
 export default CompletedSessionView;
