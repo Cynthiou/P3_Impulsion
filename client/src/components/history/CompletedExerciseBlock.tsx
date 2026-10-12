@@ -11,6 +11,8 @@ function CompletedExerciseBlock({
   exercise,
   onOpenDetail,
 }: CompletedExerciseBlockProps) {
+  const hasSets = exercise.sets.length > 0;
+
   return (
     <article className="overflow-hidden rounded-box border border-info/60 bg-base-200">
       <div className="flex items-center justify-between gap-3 border-base-300 border-b px-4 py-3">
@@ -28,9 +30,11 @@ function CompletedExerciseBlock({
         </button>
       </div>
 
-      {exercise.sets.length === 0 ? (
+      {!hasSets && (
         <p className="px-4 py-3 text-neutral text-sm">Aucune série réalisée</p>
-      ) : (
+      )}
+
+      {hasSets && (
         <table className="w-full text-sm tabular-nums">
           <caption className="sr-only">
             Séries réalisées pour {exercise.name}
