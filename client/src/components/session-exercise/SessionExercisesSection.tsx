@@ -138,6 +138,12 @@ const SessionExercisesSection = ({
     showMessage("Exercice retiré de la séance", "success");
   };
 
+  let buttonsAlignClassName = "lg:justify-end";
+
+  if (exerciseCount === 0) {
+    buttonsAlignClassName = "lg:justify-center";
+  }
+
   return (
     <>
       <div className="mt-6 flex items-center justify-between gap-4">
@@ -219,7 +225,9 @@ const SessionExercisesSection = ({
           </div>
         )}
 
-        <div className="mt-6 flex flex-col gap-3 lg:flex-row lg:justify-end">
+        <div
+          className={`mt-6 flex flex-col gap-3 lg:flex-row ${buttonsAlignClassName}`}
+        >
           <Link
             to={`/sessions/${session.id}/exercises`}
             className={`flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-3.5 text-center font-semibold text-sm leading-tight transition-colors duration-200 sm:text-sm md:px-5 focus-visible:outline-2 focus-visible:outline-info focus-visible:outline-offset-2 lg:w-auto ${
