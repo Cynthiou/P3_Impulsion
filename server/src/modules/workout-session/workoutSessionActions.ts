@@ -1,12 +1,14 @@
 import type { RequestHandler } from "express";
 import { getCurrentUserId } from "../../helpers/currentUser";
 import { buildImageUrl } from "../../helpers/imageUrl";
+import sessionExerciseRepository from "../session-exercise/sessionExerciseRepository";
 import workoutSessionRepository from "./workoutSessionRepository";
 
 const add: RequestHandler = async (req, res, next) => {
   try {
     const userId = getCurrentUserId(req);
-    const sessions = await workoutSessionRepository.readAllPrepared(userId);
+    const sessions =
+      await workoutSessionRepository.readPreparedSessions(userId);
     const emptySession = sessions.find(
       (session) => session.exerciseCount === 0,
     );
@@ -26,7 +28,8 @@ const add: RequestHandler = async (req, res, next) => {
 const browse: RequestHandler = async (req, res, next) => {
   try {
     const userId = getCurrentUserId(req);
-    const sessions = await workoutSessionRepository.readAllPrepared(userId);
+    const sessions =
+      await workoutSessionRepository.readPreparedSessions(userId);
 
     res.json(sessions);
   } catch (err) {
@@ -44,22 +47,38 @@ const read: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    const session = await workoutSessionRepository.read(sessionId, userId);
+    const session = await workoutSessionRepository.readSession(
+      sessionId,
+      userId,
+    );
 
-    if (session == null) {
+    if (session === undefined) {
       res.sendStatus(404);
       return;
     }
 
-    const sessionWithImages = {
-      ...session,
-      exercises: session.exercises.map((exercise) => ({
-        ...exercise,
-        imageUrl: buildImageUrl(exercise.slug),
-      })),
-    };
+    const exercises = await sessionExerciseRepository.readSessionExercises(
+      session.id,
+    );
+    const completedSetCount =
+      await workoutSessionRepository.readCompletedSetCount(session.id);
 
-    res.json(sessionWithImages);
+    const exercisesWithImages = exercises.map((exercise) => ({
+      ...exercise,
+      imageUrl: buildImageUrl(exercise.slug),
+    }));
+
+    res.json({
+      id: session.id,
+      userId: session.userId,
+      createdAt: session.createdAt,
+      startedAt: session.startedAt,
+      endedAt: session.endedAt,
+      status: session.status,
+      exerciseCount: exercises.length,
+      completedSetCount: completedSetCount,
+      exercises: exercisesWithImages,
+    });
   } catch (err) {
     next(err);
   }
@@ -75,7 +94,10 @@ const start: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    const session = await workoutSessionRepository.read(sessionId, userId);
+    const session = await workoutSessionRepository.readSession(
+      sessionId,
+      userId,
+    );
 
     if (session === undefined) {
       res.sendStatus(404);
@@ -89,7 +111,11 @@ const start: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    if (session.exerciseCount === 0) {
+    const exercises = await sessionExerciseRepository.readSessionExercises(
+      session.id,
+    );
+
+    if (exercises.length === 0) {
       res.sendStatus(422);
       return;
     }
@@ -213,7 +239,10 @@ const abandon: RequestHandler = async (req, res, next) => {
       res.sendStatus(400);
       return;
     }
-    const session = await workoutSessionRepository.read(sessionId, userId);
+    const session = await workoutSessionRepository.readSession(
+      sessionId,
+      userId,
+    );
 
     if (session === undefined) {
       res.sendStatus(404);
@@ -243,7 +272,10 @@ const destroy: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    const session = await workoutSessionRepository.read(sessionId, userId);
+    const session = await workoutSessionRepository.readSession(
+      sessionId,
+      userId,
+    );
 
     if (session === undefined) {
       res.sendStatus(404);

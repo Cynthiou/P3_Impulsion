@@ -47,7 +47,7 @@ describe("US11 - Workout sessions", () => {
 
   test("crée un nouveau brouillon quand aucun brouillon vide n'existe", async () => {
     jest
-      .spyOn(workoutSessionRepository, "readAllPrepared")
+      .spyOn(workoutSessionRepository, "readPreparedSessions")
       .mockResolvedValue([] as never);
 
     jest.spyOn(workoutSessionRepository, "create").mockResolvedValue(42);
@@ -60,7 +60,7 @@ describe("US11 - Workout sessions", () => {
 
   test("réutilise le brouillon vide existant sans créer de doublon", async () => {
     jest
-      .spyOn(workoutSessionRepository, "readAllPrepared")
+      .spyOn(workoutSessionRepository, "readPreparedSessions")
       .mockResolvedValue([{ id: 7, exerciseCount: 0 }] as never);
 
     const createMock = jest
@@ -77,7 +77,7 @@ describe("US11 - Workout sessions", () => {
 
   test("crée un nouveau brouillon si les prepared existantes contiennent des exercices", async () => {
     jest
-      .spyOn(workoutSessionRepository, "readAllPrepared")
+      .spyOn(workoutSessionRepository, "readPreparedSessions")
       .mockResolvedValue([{ id: 7, exerciseCount: 3 }] as never);
 
     jest.spyOn(workoutSessionRepository, "create").mockResolvedValue(8);
@@ -89,7 +89,7 @@ describe("US11 - Workout sessions", () => {
   });
 
   test("supprime une séance prepared", async () => {
-    jest.spyOn(workoutSessionRepository, "read").mockResolvedValue({
+    jest.spyOn(workoutSessionRepository, "readSession").mockResolvedValue({
       id: 7,
       status: "prepared",
     } as never);
@@ -104,7 +104,7 @@ describe("US11 - Workout sessions", () => {
 
   test("répond 404 si la séance n'existe pas ou n'appartient pas à l'utilisateur", async () => {
     jest
-      .spyOn(workoutSessionRepository, "read")
+      .spyOn(workoutSessionRepository, "readSession")
       .mockResolvedValue(undefined as never);
     const deleteMock = jest.spyOn(workoutSessionRepository, "delete");
 
@@ -117,7 +117,7 @@ describe("US11 - Workout sessions", () => {
   });
 
   test("répond 409 si la séance n'est plus prepared", async () => {
-    jest.spyOn(workoutSessionRepository, "read").mockResolvedValue({
+    jest.spyOn(workoutSessionRepository, "readSession").mockResolvedValue({
       id: 7,
       status: "in_progress",
     } as never);
@@ -169,45 +169,41 @@ describe("US13 - Ajouter des exercices à une séance", () => {
   });
 
   test("renvoie les exercices de la séance dans leur ordre", async () => {
-    const queryMock = jest
-      .spyOn(databaseClient, "query")
-      .mockResolvedValueOnce([
-        [{ id: 7, userId: 1, status: "prepared" }],
-        [],
-      ] as never)
-      .mockResolvedValueOnce([
-        [
-          { id: 3, name: "Squat", position: 1 },
-          { id: 8, name: "Développé couché", position: 2 },
-        ],
-        [],
-      ] as never)
-      .mockResolvedValueOnce([[{ completedSetCount: 0 }], []] as never);
+    const queryMock = jest.spyOn(databaseClient, "query").mockResolvedValue([
+      [
+        { id: 3, name: "Squat", position: 1 },
+        { id: 8, name: "Développé couché", position: 2 },
+      ],
+      [],
+    ] as never);
 
-    const session = await workoutSessionRepository.read(7, 1);
+    const exercises = await sessionExerciseRepository.readSessionExercises(7);
 
-    expect(session?.exercises).toEqual([
+    expect(exercises).toEqual([
       { id: 3, name: "Squat", position: 1 },
       { id: 8, name: "Développé couché", position: 2 },
     ]);
-    expect(session?.exerciseCount).toBe(2);
-
-    expect(queryMock.mock.calls[1][1]).toEqual([7]);
+    expect(String(queryMock.mock.calls[0][0])).toMatch(/ORDER BY/);
+    expect(queryMock.mock.calls[0][1]).toEqual([7]);
   });
 
   test("construit l'URL de l'image des exercices de la séance", async () => {
-    jest.spyOn(workoutSessionRepository, "read").mockResolvedValue({
+    jest.spyOn(workoutSessionRepository, "readSession").mockResolvedValue({
       id: 7,
-      exerciseCount: 1,
-      exercises: [
+    } as never);
+    jest
+      .spyOn(sessionExerciseRepository, "readSessionExercises")
+      .mockResolvedValue([
         {
           id: 3,
           slug: "squat",
           name: "Squat",
           position: 1,
         },
-      ],
-    } as never);
+      ] as never);
+    jest
+      .spyOn(workoutSessionRepository, "readCompletedSetCount")
+      .mockResolvedValue(0);
 
     const response = await authenticatedRequest.get("/api/workout-sessions/7");
 
@@ -530,10 +526,12 @@ describe("US16 - Démarrer une séance", () => {
   });
 
   test("refuse de démarrer une séance vide", async () => {
-    jest.spyOn(workoutSessionRepository, "read").mockResolvedValue({
+    jest.spyOn(workoutSessionRepository, "readSession").mockResolvedValue({
       id: 7,
-      exerciseCount: 0,
     } as never);
+    jest
+      .spyOn(sessionExerciseRepository, "readSessionExercises")
+      .mockResolvedValue([] as never);
 
     jest
       .spyOn(workoutSessionRepository, "readCurrent")
@@ -547,7 +545,7 @@ describe("US16 - Démarrer une séance", () => {
   });
 
   test("refuse le démarrage si une séance est déjà en cours", async () => {
-    jest.spyOn(workoutSessionRepository, "read").mockResolvedValue({
+    jest.spyOn(workoutSessionRepository, "readSession").mockResolvedValue({
       id: 7,
       exerciseCount: 2,
     } as never);
@@ -565,10 +563,12 @@ describe("US16 - Démarrer une séance", () => {
   });
 
   test("démarre une séance préparée contenant des exercices", async () => {
-    jest.spyOn(workoutSessionRepository, "read").mockResolvedValue({
+    jest.spyOn(workoutSessionRepository, "readSession").mockResolvedValue({
       id: 7,
-      exerciseCount: 2,
     } as never);
+    jest
+      .spyOn(sessionExerciseRepository, "readSessionExercises")
+      .mockResolvedValue([{ id: 3 }, { id: 8 }] as never);
 
     jest
       .spyOn(workoutSessionRepository, "readCurrent")
@@ -621,7 +621,7 @@ describe("US22 - Abandonner une séance", () => {
   });
 
   test("refuse l'abandon lorsqu'une série est déjà validée", async () => {
-    jest.spyOn(workoutSessionRepository, "read").mockResolvedValue({
+    jest.spyOn(workoutSessionRepository, "readSession").mockResolvedValue({
       id: 7,
       status: "in_progress",
     } as never);

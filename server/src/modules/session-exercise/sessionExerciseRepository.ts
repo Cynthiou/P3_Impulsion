@@ -306,18 +306,31 @@ class SessionExerciseRepository {
     return rows;
   }
 
-  async countCompletedSets(sessionId: number) {
+  async readSessionExercises(sessionId: number) {
     const [rows] = await databaseClient.query<Rows>(
-      `SELECT COUNT(*) AS completedSetCount
-       FROM exercise_set
-       JOIN workout_session_exercise
-         ON workout_session_exercise.id = exercise_set.workout_session_exercise_id
+      `SELECT
+        workout_session_exercise.id AS sessionExerciseId,
+        exercise.id,
+        exercise.slug,
+        exercise.name,
+        category.name AS category,
+        workout_session_exercise.position,
+        workout_session_exercise.target_sets AS targetSets,
+        workout_session_exercise.target_reps AS targetReps,
+        workout_session_exercise.target_weight_kg AS targetWeightKg,
+        workout_session_exercise.target_duration_seconds AS targetDurationSeconds,
+        workout_session_exercise.rest_seconds AS restSeconds
+       FROM workout_session_exercise
+       JOIN exercise
+         ON exercise.id = workout_session_exercise.exercise_id
+       JOIN category
+         ON category.id = exercise.category_id
        WHERE workout_session_exercise.workout_session_id = ?
-         AND exercise_set.is_completed = TRUE`,
+       ORDER BY workout_session_exercise.position`,
       [sessionId],
     );
 
-    return rows[0].completedSetCount;
+    return rows;
   }
 }
 
