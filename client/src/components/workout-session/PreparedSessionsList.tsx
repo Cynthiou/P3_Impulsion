@@ -39,15 +39,10 @@ const PreparedSessionsList = ({
       return;
     }
 
-    if (draftSession) {
-      navigate(`/sessions/${draftSession.id}`);
-      return;
-    }
+    const sessionId = await createPreparedSession();
 
-    const newSessionId = await createPreparedSession();
-
-    if (newSessionId !== null) {
-      navigate(`/sessions/${newSessionId}`);
+    if (sessionId !== null) {
+      navigate(`/sessions/${sessionId}`);
     }
   };
 
