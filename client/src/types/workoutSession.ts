@@ -65,6 +65,10 @@ export type CreateExerciseSet = {
   durationSeconds: number | null;
 };
 
+export type UpdateExerciseSet = CreateExerciseSet & {
+  isCompleted: boolean;
+};
+
 export type WorkoutSessionDetailExercise = WorkoutSessionExercise & {
   sets: CompletedSet[];
 };

@@ -26,8 +26,13 @@ function SessionId() {
   const navigate = useNavigate();
 
   const sessionId = Number(id);
-  const { session, loading, error, updateSessionExercises } =
-    useWorkoutSession(sessionId);
+  const {
+    session,
+    loading,
+    error,
+    updateSessionExercises,
+    changeCompletedSetCount,
+  } = useWorkoutSession(sessionId);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isAbandonModalOpen, setIsAbandonModalOpen] = useState(false);
@@ -398,6 +403,7 @@ function SessionId() {
                   handleRemoveExercise(exercise.sessionExerciseId)
                 }
                 canManageSets={isInProgress}
+                onSetCompletionChange={changeCompletedSetCount}
               />
             ))}
           </div>

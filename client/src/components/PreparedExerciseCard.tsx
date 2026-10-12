@@ -18,6 +18,7 @@ type PreparedExerciseCardProps = {
   removeDisabled: boolean;
   onRemove: () => void;
   canManageSets: boolean;
+  onSetCompletionChange: (change: number) => void;
 };
 
 function PreparedExerciseCard({
@@ -34,6 +35,7 @@ function PreparedExerciseCard({
   removeDisabled,
   onRemove,
   canManageSets,
+  onSetCompletionChange,
 }: PreparedExerciseCardProps) {
   return (
     <article className="rounded-box border border-base-300 bg-linear-to-b from-base-300/35 to-base-200 p-4 transition-colors hover:border-primary/40">
@@ -94,6 +96,7 @@ function PreparedExerciseCard({
           targetReps={exercise.targetReps}
           targetWeightKg={exercise.targetWeightKg}
           targetDurationSeconds={exercise.targetDurationSeconds}
+          onCompletionChange={onSetCompletionChange}
         />
       )}
     </article>

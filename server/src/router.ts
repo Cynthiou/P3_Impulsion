@@ -1,6 +1,7 @@
 import express from "express";
 import authenticate from "./middlewares/authMiddleware";
 import authActions from "./modules/auth/authActions";
+import exerciseSetActions from "./modules/exercise-set/exerciseSetActions";
 import exerciseActions from "./modules/exercise/exerciseActions";
 import filtersActions from "./modules/filters/filtersActions";
 import workoutSessionActions from "./modules/workout-session/workoutSessionActions";
@@ -10,6 +11,8 @@ const router = express.Router();
 
 router.get("/api/exercises", exerciseActions.browse);
 router.get("/api/exercises/:id", exerciseActions.read);
+
+router.patch("/api/exercise-sets/:id", authenticate, exerciseSetActions.update);
 
 router.use("/api/workout-sessions", authenticate);
 

@@ -1,17 +1,62 @@
 import { useState } from "react";
 import { useMessages } from "../contexts/MessageContext";
 import useExerciseSets from "../hooks/workout-session/useExerciseSets";
-import type { CreateExerciseSet, ExerciseSet } from "../types/workoutSession";
+import type {
+  CreateExerciseSet,
+  ExerciseSet,
+  UpdateExerciseSet,
+} from "../types/workoutSession";
 
 type ExerciseSetManagerProps = {
   sessionExerciseId: number;
   targetReps: number | null;
   targetWeightKg: number | string | null;
   targetDurationSeconds: number | null;
+  onCompletionChange: (change: number) => void;
 };
 
 const parseOptionalNumber = (value: string) => {
   return value === "" ? null : Number(value);
+};
+
+const getValidationError = (
+  values: CreateExerciseSet,
+  repetitionsRequired = false,
+) => {
+  if (
+    values.repetitions === null &&
+    values.weightKg === null &&
+    values.durationSeconds === null
+  ) {
+    return "Renseigne au moins une valeur";
+  }
+
+  if (
+    values.repetitions !== null &&
+    (!Number.isInteger(values.repetitions) || values.repetitions <= 0)
+  ) {
+    return "Le nombre de répétitions est invalide";
+  }
+
+  if (
+    values.weightKg !== null &&
+    (!Number.isFinite(values.weightKg) || values.weightKg <= 0)
+  ) {
+    return "La charge est invalide";
+  }
+
+  if (
+    values.durationSeconds !== null &&
+    (!Number.isInteger(values.durationSeconds) || values.durationSeconds <= 0)
+  ) {
+    return "La durée est invalide";
+  }
+
+  if (repetitionsRequired && values.repetitions === null) {
+    return "Renseigne les répétitions avant de valider la série";
+  }
+
+  return null;
 };
 
 type ExerciseSetFormProps = {
@@ -20,7 +65,6 @@ type ExerciseSetFormProps = {
     | Pick<ExerciseSet, "repetitions" | "weightKg" | "durationSeconds">
     | undefined;
   saving: boolean;
-  apiError: string | null;
   onAdd: (values: CreateExerciseSet) => Promise<ExerciseSet | null>;
 };
 
@@ -28,7 +72,6 @@ function ExerciseSetForm({
   setNumber,
   previousSet,
   saving,
-  apiError,
   onAdd,
 }: ExerciseSetFormProps) {
   const [repetitions, setRepetitions] = useState(
@@ -52,12 +95,10 @@ function ExerciseSetForm({
       durationSeconds: parseOptionalNumber(durationSeconds),
     };
 
-    if (
-      values.repetitions === null &&
-      values.weightKg === null &&
-      values.durationSeconds === null
-    ) {
-      setFormError("Renseigne au moins une valeur");
+    const validationError = getValidationError(values);
+
+    if (validationError !== null) {
+      setFormError(validationError);
       return;
     }
 
@@ -91,7 +132,7 @@ function ExerciseSetForm({
           <input
             type="number"
             min="0.01"
-            step="0.5"
+            step="0.01"
             value={weightKg}
             onChange={(event) => setWeightKg(event.target.value)}
             className="min-w-0 rounded-lg border border-base-300 bg-base-100 px-2 py-2 text-base"
@@ -111,9 +152,9 @@ function ExerciseSetForm({
         </label>
       </div>
 
-      {(formError ?? apiError) !== null && (
+      {formError !== null && (
         <p role="alert" className="text-error text-sm">
-          {formError ?? apiError}
+          {formError}
         </p>
       )}
 
@@ -128,13 +169,142 @@ function ExerciseSetForm({
   );
 }
 
+type ExerciseSetRowProps = {
+  set: ExerciseSet;
+  updating: boolean;
+  onUpdate: (
+    exerciseSetId: number,
+    values: UpdateExerciseSet,
+  ) => Promise<ExerciseSet | null>;
+  onCompletionChange: (change: number) => void;
+};
+
+function ExerciseSetRow({
+  set,
+  updating,
+  onUpdate,
+  onCompletionChange,
+}: ExerciseSetRowProps) {
+  const [repetitions, setRepetitions] = useState(
+    set.repetitions?.toString() ?? "",
+  );
+  const [weightKg, setWeightKg] = useState(set.weightKg?.toString() ?? "");
+  const [durationSeconds, setDurationSeconds] = useState(
+    set.durationSeconds?.toString() ?? "",
+  );
+  const [formError, setFormError] = useState<string | null>(null);
+  const { showMessage } = useMessages();
+
+  const handleCompletion = async () => {
+    const nextIsCompleted = !set.isCompleted;
+    const values = {
+      repetitions: parseOptionalNumber(repetitions),
+      weightKg: parseOptionalNumber(weightKg),
+      durationSeconds: parseOptionalNumber(durationSeconds),
+    };
+    const validationError = getValidationError(values, nextIsCompleted);
+
+    if (validationError !== null) {
+      setFormError(validationError);
+      return;
+    }
+
+    setFormError(null);
+    const updatedSet = await onUpdate(set.id, {
+      ...values,
+      isCompleted: nextIsCompleted,
+    });
+
+    if (updatedSet !== null) {
+      onCompletionChange(nextIsCompleted ? 1 : -1);
+      showMessage(
+        nextIsCompleted ? "Série réalisée" : "Série remise à faire",
+        "success",
+      );
+    }
+  };
+
+  return (
+    <li className="rounded-lg bg-base-300/50 px-3 py-3 text-sm">
+      <div className="flex items-center justify-between gap-3">
+        <span className="font-semibold">Série {set.setNumber}</span>
+        <span className="text-base-content/60 text-xs">
+          {set.isCompleted ? "Réalisée" : "À faire"}
+        </span>
+      </div>
+
+      <div className="mt-3 grid grid-cols-3 gap-2">
+        <label className="flex flex-col gap-1 text-xs">
+          Répétitions
+          <input
+            type="number"
+            min="1"
+            step="1"
+            value={repetitions}
+            disabled={set.isCompleted || updating}
+            onChange={(event) => setRepetitions(event.target.value)}
+            className="min-w-0 rounded-lg border border-base-300 bg-base-100 px-2 py-2 text-base disabled:opacity-60"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 text-xs">
+          Charge (kg)
+          <input
+            type="number"
+            min="0.01"
+            step="0.01"
+            value={weightKg}
+            disabled={set.isCompleted || updating}
+            onChange={(event) => setWeightKg(event.target.value)}
+            className="min-w-0 rounded-lg border border-base-300 bg-base-100 px-2 py-2 text-base disabled:opacity-60"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 text-xs">
+          Durée (s)
+          <input
+            type="number"
+            min="1"
+            step="1"
+            value={durationSeconds}
+            disabled={set.isCompleted || updating}
+            onChange={(event) => setDurationSeconds(event.target.value)}
+            className="min-w-0 rounded-lg border border-base-300 bg-base-100 px-2 py-2 text-base disabled:opacity-60"
+          />
+        </label>
+      </div>
+
+      {formError !== null && (
+        <p role="alert" className="mt-2 text-error text-sm">
+          {formError}
+        </p>
+      )}
+
+      <button
+        type="button"
+        onClick={handleCompletion}
+        disabled={updating}
+        aria-pressed={set.isCompleted}
+        className={`mt-3 w-full rounded-lg border px-4 py-2.5 font-semibold text-sm transition-colors disabled:cursor-wait disabled:opacity-60 ${
+          set.isCompleted
+            ? "border-base-content/30 bg-base-100 text-base-content hover:border-error hover:text-error"
+            : "border-success bg-success text-success-content hover:opacity-90"
+        }`}
+      >
+        {updating ? "Enregistrement..." : set.isCompleted ? "Annuler" : "Fait"}
+      </button>
+    </li>
+  );
+}
+
 function ExerciseSetManager({
   sessionExerciseId,
   targetReps,
   targetWeightKg,
   targetDurationSeconds,
+  onCompletionChange,
 }: ExerciseSetManagerProps) {
-  const { sets, loading, saving, error, addSet } =
+  const { sets, loading, saving, updatingSetId, error, addSet, updateSet } =
     useExerciseSets(sessionExerciseId);
   const previousSet = sets.at(-1);
   const nextSetNumber = (previousSet?.setNumber ?? 0) + 1;
@@ -159,26 +329,21 @@ function ExerciseSetManager({
       ) : (
         <ul className="mt-3 space-y-2">
           {sets.map((set) => (
-            <li
+            <ExerciseSetRow
               key={set.id}
-              className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-base-300/50 px-3 py-2 text-sm"
-            >
-              <span className="font-semibold">Série {set.setNumber}</span>
-              {set.repetitions !== null && (
-                <span>{set.repetitions} répétitions</span>
-              )}
-              {set.weightKg !== null && (
-                <span>{Number(set.weightKg).toLocaleString("fr-FR")} kg</span>
-              )}
-              {set.durationSeconds !== null && (
-                <span>{set.durationSeconds} s</span>
-              )}
-              <span className="ml-auto text-base-content/60 text-xs">
-                {set.isCompleted ? "Réalisée" : "Enregistrée"}
-              </span>
-            </li>
+              set={set}
+              updating={updatingSetId === set.id}
+              onUpdate={updateSet}
+              onCompletionChange={onCompletionChange}
+            />
           ))}
         </ul>
+      )}
+
+      {error !== null && (
+        <p role="alert" className="mt-3 text-error text-sm">
+          {error}
+        </p>
       )}
 
       {!loading && (
@@ -187,7 +352,6 @@ function ExerciseSetManager({
           setNumber={nextSetNumber}
           previousSet={suggestedValues}
           saving={saving}
-          apiError={error}
           onAdd={addSet}
         />
       )}

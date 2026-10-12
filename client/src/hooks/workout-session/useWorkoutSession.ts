@@ -50,7 +50,29 @@ const useWorkoutSession = (sessionId: number) => {
     });
   };
 
-  return { session, loading, error, updateSessionExercises };
+  const changeCompletedSetCount = (change: number) => {
+    setSession((currentSession) => {
+      if (currentSession === null) {
+        return null;
+      }
+
+      return {
+        ...currentSession,
+        completedSetCount: Math.max(
+          0,
+          Number(currentSession.completedSetCount ?? 0) + change,
+        ),
+      };
+    });
+  };
+
+  return {
+    session,
+    loading,
+    error,
+    updateSessionExercises,
+    changeCompletedSetCount,
+  };
 };
 
 export default useWorkoutSession;
