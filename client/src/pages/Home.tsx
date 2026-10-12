@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { useNavigate } from "react-router";
 import HomeActionButton from "../components/home/HomeActionButton";
 import PreparedSessionsList from "../components/workout-session/PreparedSessionsList";
+import { useAuth } from "../contexts/AuthContext";
 import { CurrentSessionContext } from "../contexts/CurrentSessionContext";
 import useCreatePreparedSession from "../hooks/workout-session/useCreatePreparedSession";
 import usePreparedSessions from "../hooks/workout-session/usePreparedSessions";
@@ -11,6 +12,7 @@ const Home = () => {
   const { createPreparedSession, loading: createLoading } =
     useCreatePreparedSession();
   const currentSessionContext = useContext(CurrentSessionContext);
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   if (currentSessionContext === null) {
@@ -23,6 +25,12 @@ const Home = () => {
 
   if (error) {
     return <p>{error}</p>;
+  }
+
+  let helloText = "Bonjour";
+
+  if (user !== null) {
+    helloText = `Bonjour ${user.username}`;
   }
 
   const currentSession = currentSessionContext.currentSession;
@@ -44,6 +52,10 @@ const Home = () => {
   return (
     <div className="w-full max-w-2xl md:py-4 lg:px-4">
       <section>
+        <p className="mb-4 font-semibold text-accent text-xs uppercase tracking-widest">
+          {helloText}
+        </p>
+
         <h1 className="font-display font-extrabold text-4xl uppercase italic leading-none md:text-5xl">
           <span className="block lg:inline">Prêt pour</span>{" "}
           <span className="text-info">ta séance</span> ?
