@@ -13,12 +13,12 @@ import PreparedExerciseCard from "../components/PreparedExerciseCard";
 import CompletedSessionView from "../components/session-detail/CompletedSessionView";
 import { CurrentSessionContext } from "../contexts/CurrentSessionContext";
 import { useMessages } from "../contexts/MessageContext";
+import useDeleteSessionExercise from "../hooks/session-exercise/useDeleteSessionExercise";
+import useReorderSessionExercises from "../hooks/session-exercise/useReorderSessionExercises";
+import useUpdateSessionExerciseRest from "../hooks/session-exercise/useUpdateSessionExerciseRest";
 import useAbandonSession from "../hooks/workout-session/useAbandonSession";
 import useDeletePreparedSession from "../hooks/workout-session/useDeletePreparedSession";
-import useDeleteSessionExercise from "../hooks/workout-session/useDeleteSessionExercise";
-import useReorderSessionExercises from "../hooks/workout-session/useReorderSessionExercises";
 import useStartSession from "../hooks/workout-session/useStartSession";
-import useUpdateSessionExerciseRest from "../hooks/workout-session/useUpdateSessionExerciseRest";
 import useWorkoutSession from "../hooks/workout-session/useWorkoutSession";
 import { formatFullDate } from "../utils/formatSessionDate";
 

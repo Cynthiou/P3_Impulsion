@@ -14,7 +14,7 @@ import EquipmentIcon from "../components/filters/EquipmentIcon";
 import FilterButton from "../components/filters/FilterButton";
 import FilterGrid from "../components/filters/FilterGrid";
 import LevelIcon from "../components/filters/LevelIcon";
-import useExercises from "../hooks/useExercises";
+import useExercises from "../hooks/exercise/useExercises";
 import useFilters from "../hooks/useFilters";
 
 const SKELETON_IDS = [

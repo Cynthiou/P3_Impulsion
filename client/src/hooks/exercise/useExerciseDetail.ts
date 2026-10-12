@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import exerciseApi from "../services/exerciseApi";
-import type { ExerciseDetail } from "../types/exercise";
+import exerciseApi from "../../services/exerciseApi";
+import type { ExerciseDetail } from "../../types/exercise";
 
 function useExerciseDetail(exerciseId: number | null) {
   const [exerciseDetail, setExerciseDetail] = useState<ExerciseDetail | null>(

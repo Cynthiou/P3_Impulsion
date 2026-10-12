@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import exerciseApi from "../services/exerciseApi";
-import type { ExerciseSummary } from "../types/exercise";
+import exerciseApi from "../../services/exerciseApi";
+import type { ExerciseSummary } from "../../types/exercise";
 
 function useExercises() {
   const [exercises, setExercises] = useState<ExerciseSummary[]>([]);

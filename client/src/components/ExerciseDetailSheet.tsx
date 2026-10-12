@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import useExerciseDetail from "../hooks/useExerciseDetail";
+import useExerciseDetail from "../hooks/exercise/useExerciseDetail";
 import ExerciseDetailContent from "./exercise-detail/ExerciseDetailContent";
 import ExerciseDetailSkeleton from "./exercise-detail/ExerciseDetailSkeleton";
 import LocalErrorState from "./feedback/LocalErrorState";
