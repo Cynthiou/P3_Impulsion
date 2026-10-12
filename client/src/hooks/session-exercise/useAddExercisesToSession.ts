@@ -1,5 +1,5 @@
 import { useState } from "react";
-import workoutSessionService from "../../services/workoutSessionService";
+import sessionExerciseService from "../../services/sessionExerciseService";
 
 const useAddExercisesToSession = () => {
   const [loading, setLoading] = useState(false);
@@ -12,7 +12,7 @@ const useAddExercisesToSession = () => {
     setLoading(true);
     setError(null);
     try {
-      await workoutSessionService.postExercisesToSession(
+      await sessionExerciseService.postExercisesToSession(
         sessionId,
         exerciseIds,
       );

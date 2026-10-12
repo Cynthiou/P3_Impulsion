@@ -1,5 +1,5 @@
 import { useState } from "react";
-import workoutSessionService from "../../services/workoutSessionService";
+import sessionExerciseService from "../../services/sessionExerciseService";
 
 function useUpdateSessionExerciseRest() {
   const [updatingExerciseId, setUpdatingExerciseId] = useState<number | null>(
@@ -16,7 +16,7 @@ function useUpdateSessionExerciseRest() {
     setError(null);
 
     try {
-      await workoutSessionService.updateWorkoutSessionExerciseRest(
+      await sessionExerciseService.updateWorkoutSessionExerciseRest(
         sessionId,
         sessionExerciseId,
         restSeconds,

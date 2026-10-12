@@ -1,5 +1,5 @@
 import { useState } from "react";
-import workoutSessionService from "../../services/workoutSessionService";
+import sessionExerciseService from "../../services/sessionExerciseService";
 
 function useDeleteSessionExercise() {
   const [deletingExerciseId, setDeletingExerciseId] = useState<number | null>(
@@ -15,7 +15,7 @@ function useDeleteSessionExercise() {
     setError(null);
 
     try {
-      await workoutSessionService.deleteWorkoutSessionExercise(
+      await sessionExerciseService.deleteWorkoutSessionExercise(
         sessionId,
         sessionExerciseId,
       );

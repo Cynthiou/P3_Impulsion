@@ -1,5 +1,5 @@
 import { useState } from "react";
-import workoutSessionService from "../../services/workoutSessionService";
+import sessionExerciseService from "../../services/sessionExerciseService";
 
 const useReorderSessionExercises = () => {
   const [loading, setLoading] = useState(false);
@@ -12,7 +12,7 @@ const useReorderSessionExercises = () => {
     setLoading(true);
     setError(null);
     try {
-      await workoutSessionService.reorderWorkoutSessionExercises(
+      await sessionExerciseService.reorderWorkoutSessionExercises(
         sessionId,
         sessionExerciseIds,
       );

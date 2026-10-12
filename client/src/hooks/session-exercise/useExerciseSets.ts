@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import workoutSessionService from "../../services/workoutSessionService";
+import sessionExerciseService from "../../services/sessionExerciseService";
 import type {
   CreateExerciseSet,
   ExerciseSet,
@@ -18,7 +18,7 @@ const useExerciseSets = (sessionExerciseId: number) => {
 
       try {
         const exerciseSets =
-          await workoutSessionService.getExerciseSets(sessionExerciseId);
+          await sessionExerciseService.getExerciseSets(sessionExerciseId);
         setSets(exerciseSets);
       } catch {
         setError("Impossible de charger les séries");
@@ -35,7 +35,7 @@ const useExerciseSets = (sessionExerciseId: number) => {
     setError(null);
 
     try {
-      const newSet = await workoutSessionService.postExerciseSet(
+      const newSet = await sessionExerciseService.postExerciseSet(
         sessionExerciseId,
         values,
       );
