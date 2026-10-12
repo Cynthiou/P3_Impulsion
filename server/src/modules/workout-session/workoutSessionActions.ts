@@ -428,62 +428,6 @@ const readCurrent: RequestHandler = async (req, res, next) => {
   }
 };
 
-const readDetail: RequestHandler = async (req, res, next) => {
-  try {
-    const userId = getCurrentUserId(req);
-    const sessionId = Number(req.params.id);
-
-    if (!Number.isInteger(sessionId) || sessionId <= 0) {
-      res.sendStatus(400);
-      return;
-    }
-
-    const session = await workoutSessionRepository.readDetail(
-      sessionId,
-      userId,
-    );
-
-    if (session === undefined) {
-      res.sendStatus(404);
-      return;
-    }
-
-    const exercises = [];
-
-    for (const exercise of session.exercises) {
-      exercises.push({
-        sessionExerciseId: exercise.sessionExerciseId,
-        id: exercise.id,
-        slug: exercise.slug,
-        name: exercise.name,
-        category: exercise.category,
-        position: exercise.position,
-        targetSets: exercise.targetSets,
-        targetReps: exercise.targetReps,
-        targetWeightKg: exercise.targetWeightKg,
-        targetDurationSeconds: exercise.targetDurationSeconds,
-        restSeconds: exercise.restSeconds,
-        sets: exercise.sets,
-        imageUrl: buildImageUrl(exercise.slug),
-      });
-    }
-
-    res.json({
-      id: session.id,
-      userId: session.userId,
-      createdAt: session.createdAt,
-      startedAt: session.startedAt,
-      endedAt: session.endedAt,
-      status: session.status,
-      exerciseCount: session.exerciseCount,
-      completedSetCount: session.completedSetCount,
-      exercises: exercises,
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
 const abandon: RequestHandler = async (req, res, next) => {
   try {
     const userId = getCurrentUserId(req);
@@ -651,7 +595,6 @@ export default {
   browse,
   read,
   readCurrent,
-  readDetail,
   removeExercise,
   start,
   reorderExercises,

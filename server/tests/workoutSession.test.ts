@@ -756,52 +756,39 @@ describe("US24 - Consulter le détail d'une séance", () => {
     jest.restoreAllMocks();
   });
 
-  test("range chaque série sous son exercice, et donne un tableau vide aux autres", async () => {
-    jest.spyOn(workoutSessionRepository, "read").mockResolvedValue({
-      id: 10,
-      status: "completed",
-      exercises: [
-        { sessionExerciseId: 1, name: "Développé couché" },
-        { sessionExerciseId: 2, name: "Rowing" },
-      ],
-    } as never);
-
-    jest.spyOn(databaseClient, "query").mockResolvedValue([
-      [
-        {
-          sessionExerciseId: 1,
-          setNumber: 1,
-          repetitions: 8,
-          weightKg: "62.50",
-        },
-        {
-          sessionExerciseId: 1,
-          setNumber: 2,
-          repetitions: 7,
-          weightKg: "60.00",
-        },
-      ],
-      [],
-    ] as never);
-
-    const session = await workoutSessionRepository.readDetail(10, 1);
-
-    expect(session?.exercises[0].sets).toHaveLength(2);
-    expect(session?.exercises[1].sets).toEqual([]);
-  });
-
-  test("ne lit que les séries validées de la séance, triées par numéro", async () => {
-    jest.spyOn(workoutSessionRepository, "read").mockResolvedValue({
-      id: 10,
-      status: "completed",
-      exercises: [],
-    } as never);
-
+  test("ne lit que la séance terminée de l'utilisateur", async () => {
     const queryMock = jest
       .spyOn(databaseClient, "query")
       .mockResolvedValue([[], []] as never);
 
-    await workoutSessionRepository.readDetail(10, 1);
+    await historyRepository.readCompletedSession(10, 1);
+
+    const [sql, params] = queryMock.mock.calls[0];
+
+    expect(String(sql)).toMatch(/user_id\s*=\s*\?/);
+    expect(String(sql)).toMatch(/status\s*=\s*'completed'/);
+    expect(params).toEqual([10, 1]);
+  });
+
+  test("lit les exercices de la séance dans leur ordre", async () => {
+    const queryMock = jest
+      .spyOn(databaseClient, "query")
+      .mockResolvedValue([[], []] as never);
+
+    await historyRepository.readSessionExercises(10);
+
+    const [sql, params] = queryMock.mock.calls[0];
+
+    expect(String(sql)).toMatch(/ORDER BY workout_session_exercise\.position/);
+    expect(params).toEqual([10]);
+  });
+
+  test("ne lit que les séries validées de la séance, triées par numéro", async () => {
+    const queryMock = jest
+      .spyOn(databaseClient, "query")
+      .mockResolvedValue([[], []] as never);
+
+    await historyRepository.readCompletedSets(10);
 
     const [sql, params] = queryMock.mock.calls[0];
 
@@ -810,68 +797,70 @@ describe("US24 - Consulter le détail d'une séance", () => {
     expect(params).toEqual([10]);
   });
 
-  test("ne lit aucune série si la séance n'appartient pas à l'utilisateur", async () => {
-    jest
-      .spyOn(workoutSessionRepository, "read")
-      .mockResolvedValue(undefined as never);
-
-    const queryMock = jest.spyOn(databaseClient, "query");
-
-    const session = await workoutSessionRepository.readDetail(10, 2);
-
-    expect(session).toBeUndefined();
-    expect(queryMock).not.toHaveBeenCalled();
-  });
-
   test("renvoie le détail de la séance de l'utilisateur connecté", async () => {
-    const repositoryMock = jest
-      .spyOn(workoutSessionRepository, "readDetail")
+    const sessionMock = jest
+      .spyOn(historyRepository, "readCompletedSession")
       .mockResolvedValue({
         id: 10,
-        exercises: [
-          { sessionExerciseId: 1, slug: "developpe-couche", sets: [] },
-        ],
+        startedAt: "2026-10-03T16:00:00.000Z",
+        durationSeconds: 3600,
+        exerciseCount: 1,
       } as never);
+    jest
+      .spyOn(historyRepository, "readSessionExercises")
+      .mockResolvedValue([
+        { sessionExerciseId: 1, id: 4, name: "Développé couché", position: 1 },
+      ] as never);
+    jest
+      .spyOn(historyRepository, "readCompletedSets")
+      .mockResolvedValue([
+        { sessionExerciseId: 1, setNumber: 1, repetitions: 8, weightKg: 60 },
+      ] as never);
 
     const response = await authenticatedRequest.get(
       "/api/workout-sessions/10/details",
     );
 
     expect(response.status).toBe(200);
-    expect(response.body.exercises[0].imageUrl).toBeDefined();
-    expect(repositoryMock).toHaveBeenCalledWith(10, 1);
+    expect(response.body.exercises).toHaveLength(1);
+    expect(response.body.sets).toHaveLength(1);
+    expect(sessionMock).toHaveBeenCalledWith(10, 1);
   });
 
-  test("répond 404 si la séance est absente ou appartient à un autre utilisateur", async () => {
+  test("répond 404 si la séance est absente ou à un autre utilisateur, sans lire ses exercices ni ses séries", async () => {
     jest
-      .spyOn(workoutSessionRepository, "readDetail")
+      .spyOn(historyRepository, "readCompletedSession")
       .mockResolvedValue(undefined as never);
+    const exercisesMock = jest.spyOn(historyRepository, "readSessionExercises");
+    const setsMock = jest.spyOn(historyRepository, "readCompletedSets");
 
     const response = await authenticatedRequest.get(
       "/api/workout-sessions/999/details",
     );
 
     expect(response.status).toBe(404);
+    expect(exercisesMock).not.toHaveBeenCalled();
+    expect(setsMock).not.toHaveBeenCalled();
   });
 
   test("répond 400 si l'identifiant est invalide", async () => {
-    const repositoryMock = jest.spyOn(workoutSessionRepository, "readDetail");
+    const sessionMock = jest.spyOn(historyRepository, "readCompletedSession");
 
     const response = await authenticatedRequest.get(
       "/api/workout-sessions/abc/details",
     );
 
     expect(response.status).toBe(400);
-    expect(repositoryMock).not.toHaveBeenCalled();
+    expect(sessionMock).not.toHaveBeenCalled();
   });
 
   test("refuse l'accès sans cookie d'authentification", async () => {
-    const repositoryMock = jest.spyOn(workoutSessionRepository, "readDetail");
+    const sessionMock = jest.spyOn(historyRepository, "readCompletedSession");
 
     const response = await request(app).get("/api/workout-sessions/10/details");
 
     expect(response.status).toBe(401);
-    expect(repositoryMock).not.toHaveBeenCalled();
+    expect(sessionMock).not.toHaveBeenCalled();
   });
 });
 

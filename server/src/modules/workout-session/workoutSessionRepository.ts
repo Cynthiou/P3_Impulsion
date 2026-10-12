@@ -459,69 +459,6 @@ class WorkoutSessionRepository {
     return result.affectedRows;
   }
 
-  async readDetail(sessionId: number, userId: number) {
-    const session = await this.read(sessionId, userId);
-
-    if (session === undefined || session.status !== "completed") {
-      return undefined;
-    }
-
-    const [setRows] = await databaseClient.query<Rows>(
-      `SELECT
-        exercise_set.workout_session_exercise_id AS sessionExerciseId,
-        exercise_set.set_number AS setNumber,
-        exercise_set.repetitions,
-        exercise_set.weight_kg AS weightKg,
-        exercise_set.duration_seconds AS durationSeconds
-      FROM exercise_set
-      JOIN workout_session_exercise
-        ON workout_session_exercise.id = exercise_set.workout_session_exercise_id
-      WHERE workout_session_exercise.workout_session_id = ?
-        AND exercise_set.is_completed = TRUE
-      ORDER BY exercise_set.set_number`,
-      [sessionId],
-    );
-
-    const exercises = [];
-
-    for (const exercise of session.exercises) {
-      const sets = [];
-
-      for (const set of setRows) {
-        if (set.sessionExerciseId === exercise.sessionExerciseId) {
-          sets.push(set);
-        }
-      }
-
-      exercises.push({
-        sessionExerciseId: exercise.sessionExerciseId,
-        id: exercise.id,
-        slug: exercise.slug,
-        name: exercise.name,
-        category: exercise.category,
-        position: exercise.position,
-        targetSets: exercise.targetSets,
-        targetReps: exercise.targetReps,
-        targetWeightKg: exercise.targetWeightKg,
-        targetDurationSeconds: exercise.targetDurationSeconds,
-        restSeconds: exercise.restSeconds,
-        sets: sets,
-      });
-    }
-
-    return {
-      id: session.id,
-      userId: session.userId,
-      createdAt: session.createdAt,
-      startedAt: session.startedAt,
-      endedAt: session.endedAt,
-      status: session.status,
-      exerciseCount: session.exerciseCount,
-      completedSetCount: session.completedSetCount,
-      exercises: exercises,
-    };
-  }
-
   async delete(sessionId: number, userId: number) {
     const [result] = await databaseClient.query<Result>(
       `DELETE FROM workout_session

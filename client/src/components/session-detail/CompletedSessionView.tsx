@@ -3,11 +3,11 @@ import { Link } from "react-router";
 
 import ChevronLeftIcon from "../../assets/icons/chevrons/chevron-left.svg?react";
 import useWorkoutSessionDetail from "../../hooks/workout-session/useWorkoutSessionDetail";
+import { calculateTotalVolume } from "../../utils/calculateTotalVolume";
 import { formatDuration } from "../../utils/formatDuration";
 import { formatFullDate } from "../../utils/formatSessionDate";
+import { groupSetsByExercise } from "../../utils/groupSetsByExercise";
 import ExerciseDetailSheet from "../ExerciseDetailSheet";
-import LocalErrorState from "../feedback/LocalErrorState";
-import Skeleton from "../feedback/Skeleton";
 import CompletedExerciseBlock from "./CompletedExerciseBlock";
 
 type CompletedSessionViewProps = {
@@ -15,45 +15,33 @@ type CompletedSessionViewProps = {
 };
 
 function CompletedSessionView({ sessionId }: CompletedSessionViewProps) {
-  const { session, loading, error, notFound, reload } =
-    useWorkoutSessionDetail(sessionId);
+  const { session, loading, error } = useWorkoutSessionDetail(sessionId);
 
   const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(
     null,
   );
 
   if (loading) {
-    return (
-      <div className="mx-auto flex w-full max-w-xl flex-col gap-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-20 w-full" />
-        <Skeleton className="h-40 w-full" />
-      </div>
-    );
+    return <p>Chargement...</p>;
   }
 
   if (error) {
-    return <LocalErrorState message={error} onRetry={reload} />;
+    return <p>{error}</p>;
   }
 
-  if (notFound || !session) {
-    return <p className="text-base-content/75">Séance introuvable.</p>;
+  if (!session) {
+    return <p>Séance introuvable.</p>;
   }
 
-  let setCount = 0;
-  let totalVolumeKg = 0;
-
-  for (const exercise of session.exercises) {
-    for (const set of exercise.sets) {
-      setCount += 1;
-      totalVolumeKg += Number(set.repetitions) * Number(set.weightKg);
-    }
-  }
-
-  const startedAt = session.startedAt ?? session.createdAt;
-  const endedAt = session.endedAt ?? startedAt;
-  const durationSeconds =
-    (new Date(endedAt).getTime() - new Date(startedAt).getTime()) / 1000;
+  const dateText = formatFullDate(session.startedAt);
+  const durationText = formatDuration(session.durationSeconds);
+  const exerciseCount = session.exerciseCount;
+  const totalVolumeKg = calculateTotalVolume(session.sets);
+  const volumeText = `${totalVolumeKg.toLocaleString("fr-FR")} kg`;
+  const exercisesWithSets = groupSetsByExercise(
+    session.exercises,
+    session.sets,
+  );
 
   return (
     <main className="mx-auto flex w-full max-w-xl flex-col gap-6 pb-24">
@@ -67,39 +55,39 @@ function CompletedSessionView({ sessionId }: CompletedSessionViewProps) {
         </Link>
 
         <h1 className="py-0.5 font-display font-extrabold text-2xl uppercase italic leading-snug lg:text-4xl">
-          {formatFullDate(startedAt)}
+          {dateText}
         </h1>
       </div>
 
       <dl className="grid grid-cols-3 gap-3">
-        <div className="flex flex-col-reverse items-center gap-1 rounded-box border border-base-300 bg-base-200 p-3 text-center">
+        <div className="flex flex-col-reverse items-center gap-0.5 rounded-box border border-base-300 bg-base-200 px-3 py-1.5 text-center">
           <dt className="text-base-content/75 text-xs uppercase tracking-widest">
             Durée
           </dt>
           <dd className="font-display font-extrabold text-lg italic tabular-nums">
-            {formatDuration(durationSeconds)}
+            {durationText}
           </dd>
         </div>
-        <div className="flex flex-col-reverse items-center gap-1 rounded-box border border-base-300 bg-base-200 p-3 text-center">
+        <div className="flex flex-col-reverse items-center gap-0.5 rounded-box border border-base-300 bg-base-200 px-3 py-1.5 text-center">
           <dt className="text-base-content/75 text-xs uppercase tracking-widest">
-            Séries
+            Exercices
           </dt>
           <dd className="font-display font-extrabold text-lg italic tabular-nums">
-            {setCount}
+            {exerciseCount}
           </dd>
         </div>
-        <div className="flex flex-col-reverse items-center gap-1 rounded-box border border-base-300 bg-base-200 p-3 text-center">
+        <div className="flex flex-col-reverse items-center gap-0.5 rounded-box border border-base-300 bg-base-200 px-3 py-1.5 text-center">
           <dt className="text-base-content/75 text-xs uppercase tracking-widest">
             Volume
           </dt>
           <dd className="font-display font-extrabold text-lg italic tabular-nums">
-            {totalVolumeKg.toLocaleString("fr-FR")} kg
+            {volumeText}
           </dd>
         </div>
       </dl>
 
       <div className="flex flex-col gap-4">
-        {session.exercises.map((exercise) => (
+        {exercisesWithSets.map((exercise) => (
           <CompletedExerciseBlock
             key={exercise.sessionExerciseId}
             exercise={exercise}
