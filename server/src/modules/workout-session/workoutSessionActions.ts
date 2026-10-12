@@ -25,18 +25,6 @@ const add: RequestHandler = async (req, res, next) => {
   }
 };
 
-const browse: RequestHandler = async (req, res, next) => {
-  try {
-    const userId = getCurrentUserId(req);
-    const sessions =
-      await workoutSessionRepository.readPreparedSessions(userId);
-
-    res.json(sessions);
-  } catch (err) {
-    next(err);
-  }
-};
-
 const read: RequestHandler = async (req, res, next) => {
   try {
     const userId = getCurrentUserId(req);
@@ -79,6 +67,67 @@ const read: RequestHandler = async (req, res, next) => {
       completedSetCount: completedSetCount,
       exercises: exercisesWithImages,
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const browse: RequestHandler = async (req, res, next) => {
+  try {
+    const userId = getCurrentUserId(req);
+    const sessions =
+      await workoutSessionRepository.readPreparedSessions(userId);
+
+    res.json(sessions);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const readCurrent: RequestHandler = async (req, res, next) => {
+  try {
+    const userId = getCurrentUserId(req);
+    const session = await workoutSessionRepository.readCurrent(userId);
+
+    res.json(session ?? null);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const readSummary: RequestHandler = async (req, res, next) => {
+  try {
+    const userId = getCurrentUserId(req);
+    const sessionId = Number(req.params.id);
+
+    if (!Number.isInteger(sessionId) || sessionId <= 0) {
+      res.sendStatus(400);
+      return;
+    }
+
+    const summary = await workoutSessionRepository.readSummary(
+      sessionId,
+      userId,
+    );
+
+    if (summary === undefined) {
+      res.sendStatus(404);
+      return;
+    }
+
+    if (summary.status !== "in_progress") {
+      res.sendStatus(409);
+      return;
+    }
+
+    const numberOfCompletedSets = Number(summary.completedSetCount);
+
+    if (numberOfCompletedSets === 0) {
+      res.sendStatus(422);
+      return;
+    }
+
+    res.status(200).json(summary);
   } catch (err) {
     next(err);
   }
@@ -136,39 +185,32 @@ const start: RequestHandler = async (req, res, next) => {
   }
 };
 
-const readSummary: RequestHandler = async (req, res, next) => {
+const abandon: RequestHandler = async (req, res, next) => {
   try {
     const userId = getCurrentUserId(req);
     const sessionId = Number(req.params.id);
-
     if (!Number.isInteger(sessionId) || sessionId <= 0) {
       res.sendStatus(400);
       return;
     }
-
-    const summary = await workoutSessionRepository.readSummary(
+    const session = await workoutSessionRepository.readSession(
       sessionId,
       userId,
     );
 
-    if (summary === undefined) {
+    if (session === undefined) {
       res.sendStatus(404);
       return;
     }
-
-    if (summary.status !== "in_progress") {
-      res.sendStatus(409);
+    const sessionAbandon = await workoutSessionRepository.abandon(
+      sessionId,
+      userId,
+    );
+    if (sessionAbandon === 1) {
+      res.sendStatus(204);
       return;
     }
-
-    const numberOfCompletedSets = Number(summary.completedSetCount);
-
-    if (numberOfCompletedSets === 0) {
-      res.sendStatus(422);
-      return;
-    }
-
-    res.status(200).json(summary);
+    res.sendStatus(409);
   } catch (err) {
     next(err);
   }
@@ -220,48 +262,6 @@ const complete: RequestHandler = async (req, res, next) => {
   }
 };
 
-const readCurrent: RequestHandler = async (req, res, next) => {
-  try {
-    const userId = getCurrentUserId(req);
-    const session = await workoutSessionRepository.readCurrent(userId);
-
-    res.json(session ?? null);
-  } catch (err) {
-    next(err);
-  }
-};
-
-const abandon: RequestHandler = async (req, res, next) => {
-  try {
-    const userId = getCurrentUserId(req);
-    const sessionId = Number(req.params.id);
-    if (!Number.isInteger(sessionId) || sessionId <= 0) {
-      res.sendStatus(400);
-      return;
-    }
-    const session = await workoutSessionRepository.readSession(
-      sessionId,
-      userId,
-    );
-
-    if (session === undefined) {
-      res.sendStatus(404);
-      return;
-    }
-    const sessionAbandon = await workoutSessionRepository.abandon(
-      sessionId,
-      userId,
-    );
-    if (sessionAbandon === 1) {
-      res.sendStatus(204);
-      return;
-    }
-    res.sendStatus(409);
-  } catch (err) {
-    next(err);
-  }
-};
-
 const destroy: RequestHandler = async (req, res, next) => {
   try {
     const userId = getCurrentUserId(req);
@@ -296,12 +296,12 @@ const destroy: RequestHandler = async (req, res, next) => {
 
 export default {
   add,
-  browse,
   read,
+  browse,
   readCurrent,
+  readSummary,
   start,
   abandon,
-  readSummary,
   complete,
   destroy,
 };
