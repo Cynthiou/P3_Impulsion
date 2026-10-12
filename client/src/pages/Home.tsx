@@ -60,6 +60,31 @@ const Home = () => {
       <section>
         <PreparedSessionsList sessions={sessions} limit={3} />
       </section>
+
+      <section className="mt-6">
+        <h2 className="font-semibold text-accent text-xs uppercase tracking-widest">
+          Progression
+        </h2>
+
+        <div className="mt-3 rounded-box border border-base-300 border-dashed p-4 text-base-content/75 text-sm leading-6">
+          <p className="max-w-md">
+            Ta courbe apparaîtra après deux séances contenant le même exercice.
+          </p>
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <h2 className="font-semibold text-accent text-xs uppercase tracking-widest">
+          Dernière séance
+        </h2>
+
+        <div className="mt-3 rounded-box border border-base-300 border-dashed p-4 text-base-content/75 text-sm leading-6">
+          <p className="max-w-md">
+            Aucune séance enregistrée. Ta première séance apparaîtra ici une
+            fois validée.
+          </p>
+        </div>
+      </section>
     </div>
   );
 };
