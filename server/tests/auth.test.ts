@@ -1,4 +1,5 @@
 import "dotenv/config";
+import jwt from "jsonwebtoken";
 import request from "supertest";
 import databaseClient from "../database/client";
 import app from "../src/app";
@@ -79,6 +80,68 @@ describe("POST /api/auth/register", () => {
 
     expect(response.status).toBe(409);
     expect(response.body.errors.username).toBeDefined();
+  });
+});
+
+const meUser = {
+  username: `moi${unique}`,
+  email: `moi${unique}@test.fr`,
+  password: "MonMdp123!",
+};
+
+describe("GET /api/auth/me", () => {
+  let cookie = "";
+
+  beforeAll(async () => {
+    await request(app).post("/api/auth/register").send(meUser);
+
+    const response = await request(app).post("/api/auth/login").send({
+      email: meUser.email,
+      password: meUser.password,
+    });
+
+    cookie = response.headers["set-cookie"]?.[0] ?? "";
+  });
+
+  afterAll(async () => {
+    await databaseClient.query("DELETE FROM user WHERE email = ?", [
+      meUser.email,
+    ]);
+  });
+
+  test("renvoie l'utilisateur avec un cookie valide", async () => {
+    const response = await request(app)
+      .get("/api/auth/me")
+      .set("Cookie", cookie);
+
+    expect(response.status).toBe(200);
+    expect(response.body.email).toBe(meUser.email);
+    expect(JSON.stringify(response.body)).not.toContain(meUser.password);
+  });
+
+  test("refuse une requête sans cookie", async () => {
+    const response = await request(app).get("/api/auth/me");
+
+    expect(response.status).toBe(401);
+  });
+
+  test("refuse un cookie invalide", async () => {
+    const response = await request(app)
+      .get("/api/auth/me")
+      .set("Cookie", "auth_token=faux");
+
+    expect(response.status).toBe(401);
+  });
+
+  test("refuse un utilisateur introuvable", async () => {
+    const appSecret = process.env.APP_SECRET ?? "";
+    const token = jwt.sign({}, appSecret, { subject: "999999999" });
+
+    const response = await request(app)
+      .get("/api/auth/me")
+      .set("Cookie", `auth_token=${token}`);
+
+    expect(response.status).toBe(401);
   });
 });
 

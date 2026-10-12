@@ -12,10 +12,12 @@ const useStartSession = () => {
     setCurrentSessionId(null);
 
     try {
-      const result = await workoutSessionService.startWorkoutSession(sessionId);
+      const startResult =
+        await workoutSessionService.startWorkoutSession(sessionId);
+      const isConflict = startResult.status === "conflict";
 
-      if (result.result === "conflict") {
-        setCurrentSessionId(result.currentSessionId);
+      if (isConflict) {
+        setCurrentSessionId(startResult.currentSessionId);
         return false;
       }
 

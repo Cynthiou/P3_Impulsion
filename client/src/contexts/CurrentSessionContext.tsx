@@ -7,6 +7,7 @@ import {
 } from "react";
 import workoutSessionService from "../services/workoutSessionService";
 import type { WorkoutSession } from "../types/workoutSession";
+import { useAuth } from "./AuthContext";
 
 type CurrentSessionContextType = {
   currentSession: WorkoutSession | null;
@@ -21,6 +22,7 @@ export const CurrentSessionProvider = ({
 }: {
   children: ReactNode;
 }) => {
+  const { user } = useAuth();
   const [currentSession, setCurrentSession] = useState<WorkoutSession | null>(
     null,
   );
@@ -36,8 +38,13 @@ export const CurrentSessionProvider = ({
   }, []);
 
   useEffect(() => {
+    if (user === null) {
+      setCurrentSession(null);
+      return;
+    }
+
     refreshCurrentSession();
-  }, [refreshCurrentSession]);
+  }, [user, refreshCurrentSession]);
 
   return (
     <CurrentSessionContext.Provider

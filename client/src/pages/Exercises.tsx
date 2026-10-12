@@ -1,19 +1,20 @@
 import { useState } from "react";
 import ArrowRightIcon from "../assets/icons/arrows/arrow-right.svg?react";
 import EmptyState from "../components/EmptyState";
-import ExerciseCard from "../components/ExerciseCard";
-import ExerciseCardSkeleton from "../components/ExerciseCardSkeleton";
-import ExerciseDetailSheet from "../components/ExerciseDetailSheet";
 import NoResultsState from "../components/NoResultsState";
 import Pagination from "../components/Pagination";
-import SearchField from "../components/SearchField";
+import ExerciseCard from "../components/exercise/ExerciseCard";
+import ExerciseCardSkeleton from "../components/exercise/ExerciseCardSkeleton";
+import ExerciseDetailSheet from "../components/exercise/ExerciseDetailSheet";
+import SearchField from "../components/exercise/SearchField";
+import SelectionCart from "../components/exercise/SelectionCart";
 import LocalErrorState from "../components/feedback/LocalErrorState";
 import CategoryIcon from "../components/filters/CategoryIcon";
 import EquipmentIcon from "../components/filters/EquipmentIcon";
 import FilterButton from "../components/filters/FilterButton";
 import FilterGrid from "../components/filters/FilterGrid";
 import LevelIcon from "../components/filters/LevelIcon";
-import useExercises from "../hooks/useExercises";
+import useExercises from "../hooks/exercise/useExercises";
 import useFilters from "../hooks/useFilters";
 
 const SKELETON_IDS = [
@@ -28,7 +29,6 @@ const SKELETON_IDS = [
 type ExercisesProps = {
   selectionMode?: boolean;
   excludedIds?: number[];
-  isSubmitting?: boolean;
   onCancel?: () => void;
   onValidate?: (selectedIds: number[]) => void;
 };
@@ -36,7 +36,6 @@ type ExercisesProps = {
 function Exercises({
   selectionMode,
   excludedIds = [],
-  isSubmitting,
   onCancel,
   onValidate,
 }: ExercisesProps) {
@@ -79,13 +78,13 @@ function Exercises({
 
   const [openFilter, setOpenFilter] = useState<string | null>(null);
 
-  function toggleFilter(name: string) {
+  const toggleFilter = (name: string) => {
     if (openFilter === name) {
       setOpenFilter(null);
     } else {
       setOpenFilter(name);
     }
-  }
+  };
 
   const showFilterBox = openFilter !== null;
 
@@ -149,37 +148,11 @@ function Exercises({
       </header>
 
       {selectionMode && (
-        <div className="sticky top-4 z-20 mb-5 rounded-xl border border-base-300 bg-base-200/95 p-3 shadow-lg backdrop-blur">
-          <div className="mx-auto flex w-full max-w-3xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center justify-center gap-3 sm:justify-start">
-              <span className="text-neutral text-sm">
-                {selectedIds.length} exercice
-                {selectedIds.length > 1 ? "s" : ""} sélectionné
-                {selectedIds.length > 1 ? "s" : ""}
-              </span>
-
-              {selectedIds.length > 0 && (
-                <button
-                  type="button"
-                  onClick={handleClearSelection}
-                  disabled={isSubmitting}
-                  className="font-semibold text-info text-sm disabled:opacity-50"
-                >
-                  Vider
-                </button>
-              )}
-            </div>
-
-            <button
-              type="button"
-              onClick={handleValidate}
-              disabled={selectedIds.length === 0 || isSubmitting}
-              className="w-full rounded-xl bg-primary px-4 py-3 font-semibold text-primary-content text-sm disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-            >
-              {isSubmitting ? "Ajout..." : "Ajouter à ma séance"}
-            </button>
-          </div>
-        </div>
+        <SelectionCart
+          count={selectedIds.length}
+          onValidate={handleValidate}
+          onClear={handleClearSelection}
+        />
       )}
 
       <div className="mb-4">

@@ -50,4 +50,40 @@ async function loginUser(payload: LoginPayload): Promise<AuthResult> {
   };
 }
 
-export default { registerUser, loginUser };
+export type CurrentUser = {
+  id: number;
+  username: string;
+  email: string;
+};
+
+async function logoutUser() {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/api/auth/logout`,
+    {
+      method: "POST",
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Impossible de se déconnecter");
+  }
+}
+
+async function fetchCurrentUser(): Promise<CurrentUser | null> {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
+    credentials: "include",
+  });
+
+  if (response.status === 401) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error("Impossible de vérifier la session");
+  }
+
+  return response.json();
+}
+
+export default { registerUser, loginUser, fetchCurrentUser, logoutUser };

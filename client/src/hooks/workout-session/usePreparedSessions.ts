@@ -13,7 +13,7 @@ const usePreparedSessions = () => {
       setError(null);
 
       try {
-        const sessionsData = await workoutSessionService.getWorkoutSessions();
+        const sessionsData = await workoutSessionService.getPreparedSessions();
         setSessions(sessionsData);
       } catch {
         setError("Impossible de charger les séances");

@@ -1,6 +1,6 @@
 import SearchIcon from "../assets/icons/champs/search.svg?react";
 
-function NoResultsState() {
+const NoResultsState = () => {
   return (
     <div className="flex flex-col items-center gap-3 rounded-2xl border border-base-300 border-dashed px-6 py-10 text-center">
       <span className="grid size-12 place-items-center rounded-full bg-base-200 text-neutral">
@@ -14,6 +14,6 @@ function NoResultsState() {
       </p>
     </div>
   );
-}
+};
 
 export default NoResultsState;

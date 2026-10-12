@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import RestTimeSelector from "../components/RestTimeSelector";
+import RestTimeSelector from "../components/session-exercise/RestTimeSelector";
 import useWorkoutTemplates from "../hooks/workout-template/useWorkoutTemplates";
 
 function Programs() {
@@ -31,10 +31,12 @@ function Programs() {
       <h1 className="font-display font-extrabold text-3xl uppercase italic lg:text-4xl">
         Programmes
       </h1>
-      <p className="mt-2 max-w-2xl text-base-content/70">
-        Réglez le repos prévu pour chaque exercice avant de préparer votre
-        séance.
-      </p>
+      {templates.length > 0 && (
+        <p className="mt-2 max-w-2xl text-base-content/70">
+          Réglez le repos prévu pour chaque exercice avant de préparer votre
+          séance.
+        </p>
+      )}
 
       {error && (
         <p

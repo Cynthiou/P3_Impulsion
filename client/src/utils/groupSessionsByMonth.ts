@@ -1,34 +1,25 @@
-import type { WorkoutSessionHistory } from "../types/workoutSession";
+import type { WorkoutSessionHistory } from "../types/history";
 
-const LOCALE = "fr-FR";
-
-export type SessionMonthGroup = {
-  key: string;
-  label: string;
+export type MonthGroup = {
+  title: string;
   sessions: WorkoutSessionHistory[];
 };
 
-export const groupSessionsByMonth = (
-  sessions: WorkoutSessionHistory[],
-): SessionMonthGroup[] => {
-  const groups: SessionMonthGroup[] = [];
+export const groupSessionsByMonth = (sessions: WorkoutSessionHistory[]) => {
+  const groups: MonthGroup[] = [];
 
   for (const session of sessions) {
-    const sessionDate = new Date(session.date);
-    const key = `${sessionDate.getFullYear()}-${sessionDate.getMonth()}`;
-    const lastGroup = groups[groups.length - 1];
+    const monthName = new Date(session.date).toLocaleDateString("fr-FR", {
+      month: "long",
+      year: "numeric",
+    });
 
-    if (lastGroup !== undefined && lastGroup.key === key) {
-      lastGroup.sessions.push(session);
+    const lastMonthGroup = groups[groups.length - 1];
+
+    if (lastMonthGroup !== undefined && lastMonthGroup.title === monthName) {
+      lastMonthGroup.sessions.push(session);
     } else {
-      groups.push({
-        key,
-        label: sessionDate.toLocaleDateString(LOCALE, {
-          month: "long",
-          year: "numeric",
-        }),
-        sessions: [session],
-      });
+      groups.push({ title: monthName, sessions: [session] });
     }
   }
 
