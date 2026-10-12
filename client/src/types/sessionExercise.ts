@@ -24,3 +24,7 @@ export type CreateExerciseSet = {
   weightKg: number | null;
   durationSeconds: number | null;
 };
+
+export type UpdateExerciseSet = CreateExerciseSet & {
+  isCompleted: boolean;
+};

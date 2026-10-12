@@ -10,8 +10,13 @@ const SessionId = () => {
   const { id } = useParams();
 
   const sessionId = Number(id);
-  const { session, loading, error, updateSessionExercises } =
-    useWorkoutSession(sessionId);
+  const {
+    session,
+    loading,
+    error,
+    updateSessionExercises,
+    changeCompletedSetCount,
+  } = useWorkoutSession(sessionId);
 
   const currentSessionContext = useContext(CurrentSessionContext);
 
@@ -54,6 +59,7 @@ const SessionId = () => {
         session={session}
         startedAt={startedAt}
         updateSessionExercises={updateSessionExercises}
+        onSetCompletionChange={changeCompletedSetCount}
       />
     );
   }

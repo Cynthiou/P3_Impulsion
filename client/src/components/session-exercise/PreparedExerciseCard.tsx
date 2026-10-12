@@ -20,6 +20,7 @@ type PreparedExerciseCardProps = {
   removeDisabled: boolean;
   onRemove: () => void;
   canManageSets: boolean;
+  onSetCompletionChange?: (change: number) => void;
   onOpenDetail: () => void;
   isOpen: boolean;
   onOpen: () => void;
@@ -39,6 +40,7 @@ function PreparedExerciseCard({
   removeDisabled,
   onRemove,
   canManageSets,
+  onSetCompletionChange,
   onOpenDetail,
   isOpen,
   onOpen,
@@ -123,6 +125,7 @@ function PreparedExerciseCard({
           targetReps={exercise.targetReps}
           targetWeightKg={exercise.targetWeightKg}
           targetDurationSeconds={exercise.targetDurationSeconds}
+          onCompletionChange={onSetCompletionChange}
         />
       )}
     </article>

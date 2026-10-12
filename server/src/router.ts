@@ -1,6 +1,7 @@
 import express from "express";
 import authenticate from "./middlewares/authMiddleware";
 import authActions from "./modules/auth/authActions";
+import exerciseSetActions from "./modules/exercise-set/exerciseSetActions";
 import exerciseActions from "./modules/exercise/exerciseActions";
 import filtersActions from "./modules/filters/filtersActions";
 import historyActions from "./modules/history/historyActions";
@@ -17,6 +18,8 @@ router.get("/api/auth/me", authenticate, authActions.isLogged);
 
 router.get("/api/exercises", exerciseActions.browse);
 router.get("/api/exercises/:id", exerciseActions.read);
+
+router.patch("/api/exercise-sets/:id", authenticate, exerciseSetActions.update);
 
 router.get("/api/categories", filtersActions.browseCategories);
 router.get("/api/difficulties", filtersActions.browseDifficulties);

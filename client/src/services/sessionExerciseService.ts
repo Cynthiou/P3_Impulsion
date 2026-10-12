@@ -1,4 +1,8 @@
-import type { CreateExerciseSet, ExerciseSet } from "../types/sessionExercise";
+import type {
+  CreateExerciseSet,
+  ExerciseSet,
+  UpdateExerciseSet,
+} from "../types/sessionExercise";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -119,6 +123,29 @@ const getExerciseSets = async (
   return response.json();
 };
 
+const patchExerciseSet = async (
+  exerciseSetId: number,
+  values: UpdateExerciseSet,
+): Promise<ExerciseSet> => {
+  const response = await fetch(
+    `${API_URL}/api/exercise-sets/${exerciseSetId}`,
+    {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Impossible de mettre à jour la série");
+  }
+
+  return response.json();
+};
+
 export default {
   postExercisesToSession,
   reorderWorkoutSessionExercises,
@@ -126,4 +153,5 @@ export default {
   deleteWorkoutSessionExercise,
   postExerciseSet,
   getExerciseSets,
+  patchExerciseSet,
 };

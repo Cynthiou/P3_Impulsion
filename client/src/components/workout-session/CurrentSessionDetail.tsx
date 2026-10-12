@@ -12,12 +12,14 @@ type CurrentSessionDetailProps = {
   session: WorkoutSession;
   startedAt: string | null;
   updateSessionExercises: (exercises: WorkoutSessionExercise[]) => void;
+  onSetCompletionChange: (change: number) => void;
 };
 
 const CurrentSessionDetail = ({
   session,
   startedAt,
   updateSessionExercises,
+  onSetCompletionChange,
 }: CurrentSessionDetailProps) => {
   const navigate = useNavigate();
 
@@ -67,6 +69,7 @@ const CurrentSessionDetail = ({
         isPrepared={false}
         isInProgress={true}
         updateSessionExercises={updateSessionExercises}
+        onSetCompletionChange={onSetCompletionChange}
       >
         <button
           type="button"

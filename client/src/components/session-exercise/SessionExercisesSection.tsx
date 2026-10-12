@@ -18,6 +18,7 @@ type SessionExercisesSectionProps = {
   isPrepared: boolean;
   isInProgress: boolean;
   updateSessionExercises: (exercises: WorkoutSessionExercise[]) => void;
+  onSetCompletionChange?: (change: number) => void;
   children: ReactNode;
 };
 
@@ -26,6 +27,7 @@ const SessionExercisesSection = ({
   isPrepared,
   isInProgress,
   updateSessionExercises,
+  onSetCompletionChange,
   children,
 }: SessionExercisesSectionProps) => {
   const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(
@@ -217,6 +219,7 @@ const SessionExercisesSection = ({
                   handleRemoveExercise(exercise.sessionExerciseId)
                 }
                 canManageSets={isInProgress}
+                onSetCompletionChange={onSetCompletionChange}
                 onOpenDetail={() => setSelectedExerciseId(exercise.id)}
                 isOpen={openedExerciseId === exercise.sessionExerciseId}
                 onOpen={() => setOpenedExerciseId(exercise.sessionExerciseId)}
