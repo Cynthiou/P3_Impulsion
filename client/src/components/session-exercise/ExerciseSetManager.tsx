@@ -13,6 +13,7 @@ type ExerciseSetManagerProps = {
   targetReps: number | null;
   targetWeightKg: number | string | null;
   targetDurationSeconds: number | null;
+  canComplete: boolean;
   onCompletionChange?: (change: number) => void;
 };
 
@@ -175,6 +176,7 @@ function ExerciseSetForm({
 type ExerciseSetRowProps = {
   set: ExerciseSet;
   updating: boolean;
+  canComplete: boolean;
   onUpdate: (
     exerciseSetId: number,
     values: UpdateExerciseSet,
@@ -185,6 +187,7 @@ type ExerciseSetRowProps = {
 function ExerciseSetRow({
   set,
   updating,
+  canComplete,
   onUpdate,
   onCompletionChange,
 }: ExerciseSetRowProps) {
@@ -198,8 +201,8 @@ function ExerciseSetRow({
   const [formError, setFormError] = useState<string | null>(null);
   const { showMessage } = useMessages();
 
-  const handleCompletion = async () => {
-    const nextIsCompleted = !set.isCompleted;
+  const handleSave = async () => {
+    const nextIsCompleted = canComplete ? !set.isCompleted : false;
     const values = {
       repetitions: parseOptionalNumber(repetitions),
       weightKg: parseOptionalNumber(weightKg),
@@ -219,11 +222,15 @@ function ExerciseSetRow({
     });
 
     if (updatedSet !== null) {
-      onCompletionChange?.(nextIsCompleted ? 1 : -1);
-      showMessage(
-        nextIsCompleted ? "Série réalisée" : "Série remise à faire",
-        "success",
-      );
+      if (canComplete) {
+        onCompletionChange?.(nextIsCompleted ? 1 : -1);
+        showMessage(
+          nextIsCompleted ? "Série réalisée" : "Série remise à faire",
+          "success",
+        );
+      } else {
+        showMessage("Série mise à jour", "success");
+      }
     }
   };
 
@@ -270,16 +277,22 @@ function ExerciseSetRow({
         <td className="py-2.5 text-right">
           <button
             type="button"
-            onClick={handleCompletion}
+            onClick={handleSave}
             disabled={updating}
-            aria-pressed={set.isCompleted}
+            aria-pressed={canComplete ? set.isCompleted : undefined}
             className={`rounded-md border px-2.5 py-1.5 font-semibold text-xs transition-colors disabled:cursor-wait disabled:opacity-60 ${
               set.isCompleted
                 ? "border-base-content/30 bg-base-100 text-base-content hover:border-error hover:text-error"
                 : "border-success bg-success text-success-content hover:opacity-90"
             }`}
           >
-            {updating ? "..." : set.isCompleted ? "Annuler" : "Fait"}
+            {updating
+              ? "..."
+              : canComplete
+                ? set.isCompleted
+                  ? "Annuler"
+                  : "Fait"
+                : "Enregistrer"}
           </button>
         </td>
       </tr>
@@ -299,6 +312,7 @@ function ExerciseSetManager({
   targetReps,
   targetWeightKg,
   targetDurationSeconds,
+  canComplete,
   onCompletionChange,
 }: ExerciseSetManagerProps) {
   const { sets, loading, saving, updatingSetId, error, addSet, updateSet } =
@@ -353,7 +367,7 @@ function ExerciseSetManager({
                 Durée
               </th>
               <th scope="col" className="py-2 text-right font-semibold">
-                État
+                {canComplete ? "État" : "Action"}
               </th>
             </tr>
           </thead>
@@ -363,6 +377,7 @@ function ExerciseSetManager({
                 key={set.id}
                 set={set}
                 updating={updatingSetId === set.id}
+                canComplete={canComplete}
                 onUpdate={updateSet}
                 onCompletionChange={onCompletionChange}
               />

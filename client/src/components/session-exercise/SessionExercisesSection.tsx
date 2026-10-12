@@ -218,7 +218,8 @@ const SessionExercisesSection = ({
                 onRemove={() =>
                   handleRemoveExercise(exercise.sessionExerciseId)
                 }
-                canManageSets={isInProgress}
+                canManageSets={isPrepared || isInProgress}
+                canCompleteSets={isInProgress}
                 onSetCompletionChange={onSetCompletionChange}
                 onOpenDetail={() => setSelectedExerciseId(exercise.id)}
                 isOpen={openedExerciseId === exercise.sessionExerciseId}

@@ -74,7 +74,10 @@ const update: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    if (exerciseSet.sessionStatus !== "in_progress") {
+    if (
+      !["prepared", "in_progress"].includes(exerciseSet.sessionStatus) ||
+      (exerciseSet.sessionStatus === "prepared" && isCompleted)
+    ) {
       res.sendStatus(409);
       return;
     }
