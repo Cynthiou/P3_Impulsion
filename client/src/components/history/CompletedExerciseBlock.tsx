@@ -1,5 +1,6 @@
 import InfoIcon from "../../assets/icons/etats/info-circle.svg?react";
 import type { DetailExerciseWithSets } from "../../types/workoutSession";
+import { formatReps } from "../../utils/formatReps";
 import { formatWeight } from "../../utils/formatWeight";
 
 type CompletedExerciseBlockProps = {
@@ -49,7 +50,7 @@ function CompletedExerciseBlock({
                   {set.setNumber}
                 </td>
                 <td className="py-2.5 font-semibold">
-                  {set.repetitions ?? "–"} reps
+                  {formatReps(set.repetitions)}
                 </td>
                 <td className="py-2.5 pr-4 font-semibold">
                   {formatWeight(set.weightKg)}
