@@ -78,13 +78,13 @@ function Exercises({
 
   const [openFilter, setOpenFilter] = useState<string | null>(null);
 
-  function toggleFilter(name: string) {
+  const toggleFilter = (name: string) => {
     if (openFilter === name) {
       setOpenFilter(null);
     } else {
       setOpenFilter(name);
     }
-  }
+  };
 
   const showFilterBox = openFilter !== null;
 

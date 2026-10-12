@@ -6,7 +6,7 @@ import PreparedSessionDetail from "../components/workout-session/PreparedSession
 import { CurrentSessionContext } from "../contexts/CurrentSessionContext";
 import useWorkoutSession from "../hooks/workout-session/useWorkoutSession";
 
-function SessionId() {
+const SessionId = () => {
   const { id } = useParams();
 
   const sessionId = Number(id);
@@ -64,6 +64,6 @@ function SessionId() {
       updateSessionExercises={updateSessionExercises}
     />
   );
-}
+};
 
 export default SessionId;

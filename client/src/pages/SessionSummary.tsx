@@ -12,7 +12,7 @@ import { formatDuration } from "../utils/formatDuration";
 import { formatSessionDateLong } from "../utils/formatSessionDate";
 import { formatWeight } from "../utils/formatWeight";
 
-function SessionSummary() {
+const SessionSummary = () => {
   const { id } = useParams();
 
   const sessionId = Number(id);
@@ -159,6 +159,6 @@ function SessionSummary() {
       </div>
     </main>
   );
-}
+};
 
 export default SessionSummary;

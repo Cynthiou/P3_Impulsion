@@ -3,7 +3,7 @@ import logoLight from "../assets/logo/logo-fond-clair.png";
 import logoDark from "../assets/logo/logo-fond-sombre.png";
 import useTheme from "../hooks/useTheme";
 
-function AuthLayout() {
+const AuthLayout = () => {
   const { theme } = useTheme();
 
   let logo = logoLight;
@@ -26,6 +26,6 @@ function AuthLayout() {
       </main>
     </div>
   );
-}
+};
 
 export default AuthLayout;

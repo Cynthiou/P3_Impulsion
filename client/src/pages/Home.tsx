@@ -4,7 +4,7 @@ import PreparedSessionsList from "../components/workout-session/PreparedSessions
 import useCreatePreparedSession from "../hooks/workout-session/useCreatePreparedSession";
 import usePreparedSessions from "../hooks/workout-session/usePreparedSessions";
 
-function Home() {
+const Home = () => {
   const { sessions, loading, error } = usePreparedSessions();
   const { createPreparedSession, loading: createLoading } =
     useCreatePreparedSession();
@@ -60,6 +60,6 @@ function Home() {
       </section>
     </div>
   );
-}
+};
 
 export default Home;

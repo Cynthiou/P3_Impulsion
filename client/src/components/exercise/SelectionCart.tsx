@@ -7,7 +7,7 @@ type SelectionCartProps = {
   onClear: () => void;
 };
 
-function SelectionCart({ count, onValidate, onClear }: SelectionCartProps) {
+const SelectionCart = ({ count, onValidate, onClear }: SelectionCartProps) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   if (count === 0) {
@@ -67,6 +67,6 @@ function SelectionCart({ count, onValidate, onClear }: SelectionCartProps) {
       </button>
     </div>
   );
-}
+};
 
 export default SelectionCart;

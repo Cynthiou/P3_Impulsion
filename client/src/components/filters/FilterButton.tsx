@@ -9,13 +9,13 @@ type FilterButtonProps = {
   onClick: () => void;
 };
 
-function FilterButton({
+const FilterButton = ({
   label,
   isOpen,
   isActive,
   disabled,
   onClick,
-}: FilterButtonProps) {
+}: FilterButtonProps) => {
   let colorClassName = "border-base-300 bg-base-200 text-base-content/70";
 
   if (isActive) {
@@ -38,6 +38,6 @@ function FilterButton({
       )}
     </button>
   );
-}
+};
 
 export default FilterButton;
