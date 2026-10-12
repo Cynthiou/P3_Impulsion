@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import type { WorkoutSession } from "../../types/workoutSession";
+import { formatPlural } from "../../utils/formatPlural";
 import { formatSessionDateShort } from "../../utils/formatSessionDate";
 
 type PreparedSessionCardProps = {
@@ -15,8 +16,7 @@ const PreparedSessionCard = ({ session }: PreparedSessionCardProps) => {
         Séance du {formattedDate}
       </p>
       <p className="col-start-1 mt-0.5 text-base-content/75 text-sm">
-        {session.exerciseCount}{" "}
-        {session.exerciseCount <= 1 ? "exercice" : "exercices"}
+        {formatPlural(session.exerciseCount, "exercice")}
       </p>
       <Link
         to={`/sessions/${session.id}`}

@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import type { WorkoutSession } from "../../types/workoutSession";
+import { formatPlural } from "../../utils/formatPlural";
 import { formatSessionStartTime } from "../../utils/formatSessionDate";
 
 type CurrentSessionCardProps = {
@@ -13,11 +14,7 @@ const CurrentSessionCard = ({ session }: CurrentSessionCardProps) => {
     startText = `Démarrée à ${formatSessionStartTime(session.startedAt)} · `;
   }
 
-  let exerciseText = `${session.exerciseCount} exercices`;
-
-  if (session.exerciseCount <= 1) {
-    exerciseText = `${session.exerciseCount} exercice`;
-  }
+  const exerciseText = formatPlural(session.exerciseCount, "exercice");
 
   return (
     <div className="mt-6 grid grid-cols-[1fr_auto] items-center gap-x-4 rounded-box border-2 border-primary bg-base-200 p-4 shadow-lg shadow-primary/15">

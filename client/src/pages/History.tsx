@@ -4,6 +4,7 @@ import HistoryTabs from "../components/history/HistoryTabs";
 import SessionMonthGroup from "../components/history/SessionMonthGroup";
 import useHistorySessions from "../hooks/history/useHistorySessions";
 import type { HistoryFilter } from "../types/filters";
+import { formatPlural } from "../utils/formatPlural";
 import { groupSessionsByMonth } from "../utils/groupSessionsByMonth";
 
 function History() {
@@ -53,11 +54,7 @@ function History() {
 
   const monthGroups = groupSessionsByMonth(filteredSessions);
 
-  let countText = `${filteredSessions.length} séances`;
-
-  if (filteredSessions.length <= 1) {
-    countText = `${filteredSessions.length} séance`;
-  }
+  const countText = formatPlural(filteredSessions.length, "séance");
 
   const monthList = monthGroups.map((monthGroup) => (
     <SessionMonthGroup key={monthGroup.title} group={monthGroup} />

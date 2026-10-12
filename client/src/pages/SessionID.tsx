@@ -20,6 +20,7 @@ import useAbandonSession from "../hooks/workout-session/useAbandonSession";
 import useDeletePreparedSession from "../hooks/workout-session/useDeletePreparedSession";
 import useStartSession from "../hooks/workout-session/useStartSession";
 import useWorkoutSession from "../hooks/workout-session/useWorkoutSession";
+import { formatPlural } from "../utils/formatPlural";
 import { formatFullDate } from "../utils/formatSessionDate";
 
 function SessionId() {
@@ -345,7 +346,7 @@ function SessionId() {
         </h2>
 
         <p className="text-base-content/75 text-sm">
-          {exerciseCount} {exerciseCount <= 1 ? "exercice" : "exercices"}
+          {formatPlural(exerciseCount, "exercice")}
         </p>
       </div>
       {reorderError && (

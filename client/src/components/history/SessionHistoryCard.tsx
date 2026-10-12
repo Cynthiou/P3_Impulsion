@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import ChevronRightIcon from "../../assets/icons/chevrons/chevron-right.svg?react";
 import type { WorkoutSessionHistory } from "../../types/workoutSession";
 import { formatDuration } from "../../utils/formatDuration";
+import { formatPlural } from "../../utils/formatPlural";
 import { formatFullDate } from "../../utils/formatSessionDate";
 
 type SessionHistoryCardProps = {
@@ -12,11 +13,7 @@ const SessionHistoryCard = ({ session }: SessionHistoryCardProps) => {
   const formattedDate = formatFullDate(session.date);
   const durationText = formatDuration(session.durationSeconds);
 
-  let exerciseText = `${session.exerciseCount} exercices`;
-
-  if (session.exerciseCount <= 1) {
-    exerciseText = `${session.exerciseCount} exercice`;
-  }
+  const exerciseText = formatPlural(session.exerciseCount, "exercice");
 
   return (
     <Link
