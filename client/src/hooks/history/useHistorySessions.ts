@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import workoutSessionService from "../../services/workoutSessionService";
+import historyService from "../../services/historyService";
 import type { WorkoutSessionHistory } from "../../types/workoutSession";
 
 const useHistorySessions = () => {
@@ -8,12 +8,12 @@ const useHistorySessions = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadSessions = async () => {
+    const loadCompletedSessions = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const sessionsData = await workoutSessionService.getHistory();
+        const sessionsData = await historyService.getHistory();
         setSessions(sessionsData);
       } catch {
         setError("Impossible de charger l'historique");
@@ -22,7 +22,7 @@ const useHistorySessions = () => {
       }
     };
 
-    loadSessions();
+    loadCompletedSessions();
   }, []);
 
   return { sessions, loading, error };
