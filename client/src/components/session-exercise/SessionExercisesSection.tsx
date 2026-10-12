@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router";
 import BarbellIcon from "../../assets/icons/navigation/barbell.svg?react";
 import { useMessages } from "../../contexts/MessageContext";
 import useDeleteSessionExercise from "../../hooks/session-exercise/useDeleteSessionExercise";
 import useReorderSessionExercises from "../../hooks/session-exercise/useReorderSessionExercises";
 import useUpdateSessionExerciseRest from "../../hooks/session-exercise/useUpdateSessionExerciseRest";
+import useErrorMessage from "../../hooks/useErrorMessage";
 import type { WorkoutSessionExercise } from "../../types/sessionExercise";
 import type { WorkoutSession } from "../../types/workoutSession";
 import { formatPlural } from "../../utils/formatPlural";
@@ -52,17 +53,8 @@ const SessionExercisesSection = ({
 
   const { showMessage } = useMessages();
 
-  useEffect(() => {
-    if (restError !== null) {
-      showMessage(restError, "error");
-    }
-  }, [restError, showMessage]);
-
-  useEffect(() => {
-    if (removeExerciseError !== null) {
-      showMessage(removeExerciseError, "error");
-    }
-  }, [removeExerciseError, showMessage]);
+  useErrorMessage(restError);
+  useErrorMessage(removeExerciseError);
 
   const exercises = session.exercises ?? [];
   const exerciseCount = Number(session.exerciseCount);

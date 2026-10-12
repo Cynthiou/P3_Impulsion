@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router";
 import TrashIcon from "../../assets/icons/actions/trash.svg?react";
 import { CurrentSessionContext } from "../../contexts/CurrentSessionContext";
-import { useMessages } from "../../contexts/MessageContext";
+import useErrorMessage from "../../hooks/useErrorMessage";
 import useAbandonSession from "../../hooks/workout-session/useAbandonSession";
 import useDeletePreparedSession from "../../hooks/workout-session/useDeletePreparedSession";
 import useStartSession from "../../hooks/workout-session/useStartSession";
@@ -48,25 +48,10 @@ const PreparedSessionDetail = ({
   } = useAbandonSession();
 
   const currentSessionContext = useContext(CurrentSessionContext);
-  const { showMessage } = useMessages();
 
-  useEffect(() => {
-    if (deleteError !== null) {
-      showMessage(deleteError, "error");
-    }
-  }, [deleteError, showMessage]);
-
-  useEffect(() => {
-    if (startError !== null) {
-      showMessage(startError, "error");
-    }
-  }, [startError, showMessage]);
-
-  useEffect(() => {
-    if (abandonError !== null) {
-      showMessage(abandonError, "error");
-    }
-  }, [abandonError, showMessage]);
+  useErrorMessage(deleteError);
+  useErrorMessage(startError);
+  useErrorMessage(abandonError);
 
   if (currentSessionContext === null) {
     throw new Error("Le contexte de la séance en cours est indisponible");
