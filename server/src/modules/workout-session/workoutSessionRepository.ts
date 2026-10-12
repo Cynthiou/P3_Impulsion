@@ -1,5 +1,6 @@
 import databaseClient from "../../../database/client";
 import type { Result, Rows } from "../../../database/client";
+import sessionExerciseRepository from "../session-exercise/sessionExerciseRepository";
 
 class WorkoutSessionRepository {
   async create(userId: number) {
@@ -78,15 +79,8 @@ class WorkoutSessionRepository {
       [sessionId],
     );
 
-    const [setRows] = await databaseClient.query<Rows>(
-      `SELECT COUNT(*) AS completedSetCount
-       FROM exercise_set
-       JOIN workout_session_exercise
-         ON workout_session_exercise.id = exercise_set.workout_session_exercise_id
-       WHERE workout_session_exercise.workout_session_id = ?
-         AND exercise_set.is_completed = TRUE`,
-      [sessionId],
-    );
+    const completedSetCount =
+      await sessionExerciseRepository.countCompletedSets(sessionId);
 
     return {
       id: session.id,
@@ -96,7 +90,7 @@ class WorkoutSessionRepository {
       endedAt: session.endedAt,
       status: session.status,
       exerciseCount: exerciseRows.length,
-      completedSetCount: Number(setRows[0].completedSetCount),
+      completedSetCount: completedSetCount,
       exercises: exerciseRows,
     };
   }
@@ -139,17 +133,10 @@ class WorkoutSessionRepository {
   }
 
   async abandon(sessionId: number, userId: number) {
-    const [setRows] = await databaseClient.query<Rows>(
-      `SELECT COUNT(*) AS completedSetCount
-       FROM exercise_set
-       JOIN workout_session_exercise
-         ON workout_session_exercise.id = exercise_set.workout_session_exercise_id
-       WHERE workout_session_exercise.workout_session_id = ?
-         AND exercise_set.is_completed = TRUE`,
-      [sessionId],
-    );
+    const completedSetCount =
+      await sessionExerciseRepository.countCompletedSets(sessionId);
 
-    if (Number(setRows[0].completedSetCount) > 0) {
+    if (completedSetCount > 0) {
       return 0;
     }
 
