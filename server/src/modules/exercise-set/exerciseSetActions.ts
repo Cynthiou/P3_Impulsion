@@ -89,16 +89,7 @@ const update: RequestHandler = async (req, res, next) => {
       isCompleted,
     };
 
-    const affectedRows = await exerciseSetRepository.update(
-      exerciseSetId,
-      userId,
-      values,
-    );
-
-    if (affectedRows === 0) {
-      res.sendStatus(409);
-      return;
-    }
+    await exerciseSetRepository.update(exerciseSetId, userId, values);
 
     res.json({
       id: exerciseSetId,
