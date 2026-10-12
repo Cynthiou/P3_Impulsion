@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import historyService from "../../services/historyService";
-import type { WorkoutSessionDetail } from "../../types/workoutSession";
+import type { WorkoutSessionDetail } from "../../types/history";
 
 const useWorkoutSessionDetail = (sessionId: number) => {
   const [session, setSession] = useState<WorkoutSessionDetail | null>(null);

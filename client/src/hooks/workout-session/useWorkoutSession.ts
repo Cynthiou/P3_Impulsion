@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import workoutSessionService from "../../services/workoutSessionService";
-import type {
-  WorkoutSession,
-  WorkoutSessionExercise,
-} from "../../types/workoutSession";
+import type { WorkoutSessionExercise } from "../../types/sessionExercise";
+import type { WorkoutSession } from "../../types/workoutSession";
 
 const useWorkoutSession = (sessionId: number) => {
   const [session, setSession] = useState<WorkoutSession | null>(null);

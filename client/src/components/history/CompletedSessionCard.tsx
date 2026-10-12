@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import ChevronRightIcon from "../../assets/icons/chevrons/chevron-right.svg?react";
-import type { WorkoutSessionHistory } from "../../types/workoutSession";
+import type { WorkoutSessionHistory } from "../../types/history";
 import { formatDuration } from "../../utils/formatDuration";
 import { formatPlural } from "../../utils/formatPlural";
 import { formatFullDate } from "../../utils/formatSessionDate";

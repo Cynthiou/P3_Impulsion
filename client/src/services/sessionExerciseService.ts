@@ -1,4 +1,4 @@
-import type { CreateExerciseSet, ExerciseSet } from "../types/workoutSession";
+import type { CreateExerciseSet, ExerciseSet } from "../types/sessionExercise";
 
 const API_URL = import.meta.env.VITE_API_URL;
 

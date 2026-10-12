@@ -1,5 +1,5 @@
 import InfoIcon from "../../assets/icons/etats/info-circle.svg?react";
-import type { DetailExerciseWithSets } from "../../types/workoutSession";
+import type { DetailExerciseWithSets } from "../../types/history";
 import { formatReps } from "../../utils/formatReps";
 import { formatWeight } from "../../utils/formatWeight";
 

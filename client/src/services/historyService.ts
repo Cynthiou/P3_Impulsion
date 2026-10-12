@@ -1,7 +1,7 @@
 import type {
   WorkoutSessionDetail,
   WorkoutSessionHistory,
-} from "../types/workoutSession";
+} from "../types/history";
 
 const API_URL = import.meta.env.VITE_API_URL;
 

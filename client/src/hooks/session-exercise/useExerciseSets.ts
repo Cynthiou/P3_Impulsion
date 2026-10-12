@@ -3,7 +3,7 @@ import sessionExerciseService from "../../services/sessionExerciseService";
 import type {
   CreateExerciseSet,
   ExerciseSet,
-} from "../../types/workoutSession";
+} from "../../types/sessionExercise";
 
 const useExerciseSets = (sessionExerciseId: number) => {
   const [sets, setSets] = useState<ExerciseSet[]>([]);

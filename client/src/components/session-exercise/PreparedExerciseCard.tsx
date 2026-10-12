@@ -2,7 +2,7 @@ import TrashIcon from "../../assets/icons/actions/trash.svg?react";
 import ChevronDownIcon from "../../assets/icons/chevrons/chevron-down.svg?react";
 import ChevronUpIcon from "../../assets/icons/chevrons/chevron-up.svg?react";
 import InfoIcon from "../../assets/icons/etats/info-circle.svg?react";
-import type { WorkoutSessionExercise } from "../../types/workoutSession";
+import type { WorkoutSessionExercise } from "../../types/sessionExercise";
 import ExerciseSetManager from "./ExerciseSetManager";
 import RestTimeSelector from "./RestTimeSelector";
 

@@ -5,7 +5,7 @@ import useExerciseSets from "../../hooks/session-exercise/useExerciseSets";
 import type {
   CreateExerciseSet,
   ExerciseSet,
-} from "../../types/workoutSession";
+} from "../../types/sessionExercise";
 import { formatWeight } from "../../utils/formatWeight";
 
 type ExerciseSetManagerProps = {
