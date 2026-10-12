@@ -4,6 +4,7 @@ import authActions from "./modules/auth/authActions";
 import exerciseActions from "./modules/exercise/exerciseActions";
 import filtersActions from "./modules/filters/filtersActions";
 import historyActions from "./modules/history/historyActions";
+import sessionExerciseActions from "./modules/session-exercise/sessionExerciseActions";
 import workoutSessionActions from "./modules/workout-session/workoutSessionActions";
 import workoutTemplateActions from "./modules/workout-template/workoutTemplateActions";
 
@@ -15,25 +16,31 @@ router.get("/api/exercises/:id", exerciseActions.read);
 router.use("/api/workout-sessions", authenticate);
 
 router.use("/api/session-exercises", authenticate);
-router.post("/api/session-exercises/:id/sets", workoutSessionActions.createSet);
-router.get("/api/session-exercises/:id/sets", workoutSessionActions.browseSets);
+router.post(
+  "/api/session-exercises/:id/sets",
+  sessionExerciseActions.createSet,
+);
+router.get(
+  "/api/session-exercises/:id/sets",
+  sessionExerciseActions.browseSets,
+);
 
 router.post("/api/workout-sessions", workoutSessionActions.add);
 router.post(
   "/api/workout-sessions/:id/exercises",
-  workoutSessionActions.addExercises,
+  sessionExerciseActions.addExercises,
 );
 router.patch(
   "/api/workout-sessions/:id/exercises/order",
-  workoutSessionActions.reorderExercises,
+  sessionExerciseActions.reorderExercises,
 );
 router.patch(
   "/api/workout-sessions/:id/exercises/:sessionExerciseId/rest",
-  workoutSessionActions.updateExerciseRest,
+  sessionExerciseActions.updateExerciseRest,
 );
 router.delete(
   "/api/workout-sessions/:id/exercises/:sessionExerciseId",
-  workoutSessionActions.removeExercise,
+  sessionExerciseActions.removeExercise,
 );
 router.get("/api/workout-sessions", workoutSessionActions.browse);
 router.get("/api/workout-sessions/current", workoutSessionActions.readCurrent);

@@ -6,6 +6,7 @@ import request from "supertest";
 import databaseClient from "../database/client";
 import app from "../src/app";
 import historyRepository from "../src/modules/history/historyRepository";
+import sessionExerciseRepository from "../src/modules/session-exercise/sessionExerciseRepository";
 import workoutSessionRepository from "../src/modules/workout-session/workoutSessionRepository";
 
 const appSecret = process.env.APP_SECRET;
@@ -151,7 +152,7 @@ describe("US13 - Ajouter des exercices à une séance", () => {
 
   test("ajoute plusieurs exercices à une séance préparée", async () => {
     const addExercisesMock = jest
-      .spyOn(workoutSessionRepository, "addExercises")
+      .spyOn(sessionExerciseRepository, "addExercises")
       .mockResolvedValue("created");
 
     const response = await authenticatedRequest
@@ -223,7 +224,7 @@ describe("US13 - Ajouter des exercices à une séance", () => {
     ["un doublon", { exerciseIds: [3, 3] }],
   ])("refuse %s", async (_description, body) => {
     const addExercisesMock = jest.spyOn(
-      workoutSessionRepository,
+      sessionExerciseRepository,
       "addExercises",
     );
 
@@ -244,7 +245,7 @@ describe("US13 - Ajouter des exercices à une séance", () => {
     "renvoie %i lorsque le repository retourne %s",
     async (expectedStatus, repositoryResult) => {
       jest
-        .spyOn(workoutSessionRepository, "addExercises")
+        .spyOn(sessionExerciseRepository, "addExercises")
         .mockResolvedValue(repositoryResult);
 
       const response = await authenticatedRequest
@@ -264,7 +265,7 @@ describe("US13 - Ajouter des exercices à une séance", () => {
       .mockResolvedValueOnce([[{ maxPosition: 2 }], []] as never)
       .mockResolvedValueOnce([{ affectedRows: 2 }, []] as never);
 
-    const result = await workoutSessionRepository.addExercises(7, 1, [3, 8]);
+    const result = await sessionExerciseRepository.addExercises(7, 1, [3, 8]);
 
     expect(result).toBe("created");
 
@@ -289,7 +290,7 @@ describe("US13 - Ajouter des exercices à une séance", () => {
       .mockRejectedValueOnce(databaseError);
 
     await expect(
-      workoutSessionRepository.addExercises(7, 1, [3, 8]),
+      sessionExerciseRepository.addExercises(7, 1, [3, 8]),
     ).rejects.toThrow("Database failure");
   });
 });
@@ -301,7 +302,7 @@ describe("US14 - Ordonner les exercices d'une séance", () => {
 
   test("réordonne les exercices d'une séance", async () => {
     const reorderExercisesMock = jest
-      .spyOn(workoutSessionRepository, "reorderExercises")
+      .spyOn(sessionExerciseRepository, "reorderExercises")
       .mockResolvedValue("reordered");
 
     const response = await authenticatedRequest
@@ -319,7 +320,7 @@ describe("US14 - Ordonner les exercices d'une séance", () => {
     ["un doublon", { sessionExerciseIds: [18, 18, 25] }],
   ])("refuse %s", async (_description, body) => {
     const reorderExercisesMock = jest.spyOn(
-      workoutSessionRepository,
+      sessionExerciseRepository,
       "reorderExercises",
     );
 
@@ -339,7 +340,7 @@ describe("US14 - Ordonner les exercices d'une séance", () => {
     "retourne %s avec le statut HTTP %i",
     async (repositoryResult, expectedStatus) => {
       const reorderExercisesMock = jest
-        .spyOn(workoutSessionRepository, "reorderExercises")
+        .spyOn(sessionExerciseRepository, "reorderExercises")
         .mockResolvedValue(repositoryResult);
 
       const response = await authenticatedRequest
@@ -359,7 +360,7 @@ describe("US13 - Retirer un exercice d'une séance préparée", () => {
 
   test("retire un exercice de la séance", async () => {
     const removeExerciseMock = jest
-      .spyOn(workoutSessionRepository, "removeExercise")
+      .spyOn(sessionExerciseRepository, "removeExercise")
       .mockResolvedValue("deleted");
 
     const response = await authenticatedRequest.delete(
@@ -375,7 +376,7 @@ describe("US13 - Retirer un exercice d'une séance préparée", () => {
     ["un identifiant d'exercice invalide", "7", "0"],
   ])("refuse %s", async (_description, sessionId, sessionExerciseId) => {
     const removeExerciseMock = jest.spyOn(
-      workoutSessionRepository,
+      sessionExerciseRepository,
       "removeExercise",
     );
 
@@ -394,7 +395,7 @@ describe("US13 - Retirer un exercice d'une séance préparée", () => {
     "retourne %s avec le statut HTTP %i",
     async (repositoryResult, expectedStatus) => {
       jest
-        .spyOn(workoutSessionRepository, "removeExercise")
+        .spyOn(sessionExerciseRepository, "removeExercise")
         .mockResolvedValue(repositoryResult);
 
       const response = await authenticatedRequest.delete(
@@ -415,7 +416,7 @@ describe("US13 - Retirer un exercice d'une séance préparée", () => {
       .mockResolvedValueOnce([{ affectedRows: 1 }, []] as never)
       .mockResolvedValueOnce([{ affectedRows: 2 }, []] as never);
 
-    const result = await workoutSessionRepository.removeExercise(7, 18, 1);
+    const result = await sessionExerciseRepository.removeExercise(7, 18, 1);
 
     expect(result).toBe("deleted");
     expect(String(queryMock.mock.calls[1][0])).toMatch(
@@ -438,7 +439,7 @@ describe("US15 - Régler le temps de repos d'un exercice", () => {
     "accepte la durée %s",
     async (restSeconds) => {
       const updateRestMock = jest
-        .spyOn(workoutSessionRepository, "updateExerciseRest")
+        .spyOn(sessionExerciseRepository, "updateExerciseRest")
         .mockResolvedValue("updated");
 
       const response = await authenticatedRequest
@@ -454,7 +455,7 @@ describe("US15 - Régler le temps de repos d'un exercice", () => {
     "refuse la durée %s",
     async (restSeconds) => {
       const updateRestMock = jest.spyOn(
-        workoutSessionRepository,
+        sessionExerciseRepository,
         "updateExerciseRest",
       );
 
@@ -474,7 +475,7 @@ describe("US15 - Régler le temps de repos d'un exercice", () => {
     "retourne %s avec le statut HTTP %i",
     async (repositoryResult, expectedStatus) => {
       jest
-        .spyOn(workoutSessionRepository, "updateExerciseRest")
+        .spyOn(sessionExerciseRepository, "updateExerciseRest")
         .mockResolvedValue(repositoryResult);
 
       const response = await authenticatedRequest
@@ -491,7 +492,7 @@ describe("US15 - Régler le temps de repos d'un exercice", () => {
       .mockResolvedValueOnce([[{ status: "prepared" }], []] as never)
       .mockResolvedValueOnce([{ affectedRows: 1 }, []] as never);
 
-    const result = await workoutSessionRepository.updateExerciseRest(
+    const result = await sessionExerciseRepository.updateExerciseRest(
       7,
       18,
       1,
@@ -509,7 +510,7 @@ describe("US15 - Régler le temps de repos d'un exercice", () => {
       .mockResolvedValueOnce([[{ status: "prepared" }], []] as never)
       .mockResolvedValueOnce([{ affectedRows: 1 }, []] as never);
 
-    await workoutSessionRepository.updateExerciseRest(7, 18, 1, null);
+    await sessionExerciseRepository.updateExerciseRest(7, 18, 1, null);
 
     expect(queryMock.mock.calls[1][1]).toEqual([null, 18, 7]);
   });
@@ -871,11 +872,11 @@ describe("US17 - Ajouter et enregistrer une série", () => {
 
   test("ajoute une série non validée à un exercice de la séance en cours", async () => {
     jest
-      .spyOn(workoutSessionRepository, "readSessionExerciseOwner")
+      .spyOn(sessionExerciseRepository, "readSessionExerciseOwner")
       .mockResolvedValue({ userId: 1, status: "in_progress" } as never);
 
     const createSetMock = jest
-      .spyOn(workoutSessionRepository, "createSet")
+      .spyOn(sessionExerciseRepository, "createSet")
       .mockResolvedValue({
         id: 12,
         setNumber: 2,
@@ -904,7 +905,7 @@ describe("US17 - Ajouter et enregistrer une série", () => {
   test.each(["abc", "0", "-3", "1.5"])(
     "refuse l'identifiant invalide %s",
     async (sessionExerciseId) => {
-      const createSetMock = jest.spyOn(workoutSessionRepository, "createSet");
+      const createSetMock = jest.spyOn(sessionExerciseRepository, "createSet");
 
       const response = await authenticatedRequest
         .post(`/api/session-exercises/${sessionExerciseId}/sets`)
@@ -922,7 +923,7 @@ describe("US17 - Ajouter et enregistrer une série", () => {
     [{ weightKg: -10 }, "charge négative"],
     [{ durationSeconds: 1.5 }, "durée décimale"],
   ])("refuse %s (%s)", async (body, _description) => {
-    const createSetMock = jest.spyOn(workoutSessionRepository, "createSet");
+    const createSetMock = jest.spyOn(sessionExerciseRepository, "createSet");
 
     const response = await authenticatedRequest
       .post("/api/session-exercises/18/sets")
@@ -934,7 +935,7 @@ describe("US17 - Ajouter et enregistrer une série", () => {
 
   test("ne révèle pas un exercice appartenant à un autre utilisateur", async () => {
     jest
-      .spyOn(workoutSessionRepository, "readSessionExerciseOwner")
+      .spyOn(sessionExerciseRepository, "readSessionExerciseOwner")
       .mockResolvedValue({ userId: 2, status: "in_progress" } as never);
 
     const response = await authenticatedRequest
@@ -946,10 +947,10 @@ describe("US17 - Ajouter et enregistrer une série", () => {
 
   test("refuse l'ajout si la séance n'est pas en cours", async () => {
     jest
-      .spyOn(workoutSessionRepository, "readSessionExerciseOwner")
+      .spyOn(sessionExerciseRepository, "readSessionExerciseOwner")
       .mockResolvedValue({ userId: 1, status: "prepared" } as never);
 
-    const createSetMock = jest.spyOn(workoutSessionRepository, "createSet");
+    const createSetMock = jest.spyOn(sessionExerciseRepository, "createSet");
 
     const response = await authenticatedRequest
       .post("/api/session-exercises/18/sets")
@@ -965,7 +966,7 @@ describe("US17 - Ajouter et enregistrer une série", () => {
       .mockResolvedValueOnce([[{ nextSetNumber: 3 }], []] as never)
       .mockResolvedValueOnce([{ insertId: 42 }, []] as never);
 
-    const result = await workoutSessionRepository.createSet(18, 10, 40, null);
+    const result = await sessionExerciseRepository.createSet(18, 10, 40, null);
 
     expect(result).toEqual({
       id: 42,
@@ -982,10 +983,10 @@ describe("US17 - Ajouter et enregistrer une série", () => {
 
   test("renvoie les séries existantes dans leur ordre", async () => {
     jest
-      .spyOn(workoutSessionRepository, "readSessionExerciseOwner")
+      .spyOn(sessionExerciseRepository, "readSessionExerciseOwner")
       .mockResolvedValue({ userId: 1, status: "in_progress" } as never);
     jest
-      .spyOn(workoutSessionRepository, "readSetsBySessionExercise")
+      .spyOn(sessionExerciseRepository, "readSetsBySessionExercise")
       .mockResolvedValue([
         { id: 3, setNumber: 1 },
         { id: 7, setNumber: 2 },
