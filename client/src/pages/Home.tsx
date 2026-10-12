@@ -36,6 +36,7 @@ const Home = () => {
 
   const currentSession = currentSessionContext.currentSession;
   const draftSession = sessions.find((session) => session.exerciseCount === 0);
+  const hasDraft = draftSession !== undefined;
 
   const handleSessionAction = async () => {
     if (currentSession !== null) {
@@ -64,7 +65,7 @@ const Home = () => {
 
         <HomeActionButton
           currentSession={currentSession}
-          hasDraft={draftSession !== undefined}
+          hasDraft={hasDraft}
           onAction={handleSessionAction}
           isLoading={createLoading}
         />
