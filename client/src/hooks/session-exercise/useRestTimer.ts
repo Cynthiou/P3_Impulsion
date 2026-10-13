@@ -45,12 +45,25 @@ const useRestTimer = () => {
     }
   };
 
+  // « − » : j'avance la fin du repos de 30 secondes
+  const removeThirtySeconds = () => {
+    if (secondsLeft > 0) {
+      setRestEndsAt(restEndsAt - 30);
+    }
+  };
+
   // « Passer le repos » : plus de repos en cours
   const skipRest = () => {
     setRestEndsAt(0);
   };
 
-  return { secondsLeft, startRest, addThirtySeconds, skipRest };
+  return {
+    secondsLeft,
+    startRest,
+    addThirtySeconds,
+    removeThirtySeconds,
+    skipRest,
+  };
 };
 
 export default useRestTimer;

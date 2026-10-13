@@ -3,11 +3,11 @@ import PencilIcon from "../../assets/icons/actions/pencil.svg?react";
 
 const REST_OPTIONS = [
   { label: "0:00", value: null },
+  { label: "0:30", value: 30 },
   { label: "1:00", value: 60 },
   { label: "1:30", value: 90 },
   { label: "2:00", value: 120 },
   { label: "2:30", value: 150 },
-  { label: "3:00", value: 180 },
 ] as const;
 
 type RestTimeSelectorProps = {
@@ -46,7 +46,7 @@ function RestTimeSelector({
   }
 
   return (
-    <div className="mt-0.5 -ml-2">
+    <div className="relative mt-0.5 -ml-2">
       <button
         type="button"
         onClick={() => setIsOpen((currentValue) => !currentValue)}
@@ -61,7 +61,7 @@ function RestTimeSelector({
 
       {isOpen && (
         <div
-          className="absolute top-full right-0 left-0 z-20 mt-2 flex gap-1 rounded-box border-2 border-primary/60 bg-base-300 p-1.5 shadow-2xl"
+          className="absolute top-full left-0 z-20 mt-1 flex w-max gap-1 rounded-box border-2 border-primary/60 bg-base-300 p-1.5 shadow-2xl"
           aria-label="Temps de repos"
         >
           {REST_OPTIONS.map((option) => (
