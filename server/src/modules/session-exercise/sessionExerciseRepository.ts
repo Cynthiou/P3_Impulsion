@@ -202,7 +202,10 @@ class SessionExerciseRepository {
       return "exercise_not_found";
     }
 
-    if (sessionExercise.status !== "prepared") {
+    if (
+      sessionExercise.status !== "prepared" &&
+      sessionExercise.status !== "in_progress"
+    ) {
       return "session_not_editable";
     }
 

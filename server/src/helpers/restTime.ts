@@ -1,4 +1,4 @@
-const ALLOWED_REST_SECONDS = [60, 90, 120, 150, 180] as const;
+const ALLOWED_REST_SECONDS = [30, 60, 90, 120, 150] as const;
 
 const DEFAULT_REST_SECONDS = 90;
 
