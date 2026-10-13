@@ -223,6 +223,7 @@ describe("US16 - Démarrer une séance", () => {
       .mockResolvedValue({
         id: 7,
         status: "in_progress",
+        startedAt: new Date().toISOString(),
       } as never);
 
     const response = await authenticatedRequest.get(
@@ -232,6 +233,65 @@ describe("US16 - Démarrer une séance", () => {
     expect(response.status).toBe(200);
     expect(response.body.id).toBe(7);
     expect(response.body.status).toBe("in_progress");
+  });
+
+  test("valide une séance en cours depuis plus de 6 heures avec des séries faites", async () => {
+    const sevenHoursAgo = new Date(Date.now() - 7 * 60 * 60 * 1000);
+
+    jest
+      .spyOn(workoutSessionRepository, "readCurrentSession")
+      .mockResolvedValue({
+        id: 7,
+        status: "in_progress",
+        startedAt: sevenHoursAgo.toISOString(),
+      } as never);
+    jest
+      .spyOn(workoutSessionRepository, "readCompletedSets")
+      .mockResolvedValue([{ repetitions: 10 }] as never);
+    const completeMock = jest
+      .spyOn(workoutSessionRepository, "completeSession")
+      .mockResolvedValue(1);
+    const abandonMock = jest.spyOn(workoutSessionRepository, "abandonSession");
+
+    const response = await authenticatedRequest.get(
+      "/api/workout-sessions/current",
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.body).toBeNull();
+    expect(completeMock).toHaveBeenCalledWith(7, 1);
+    expect(abandonMock).not.toHaveBeenCalled();
+  });
+
+  test("remet en préparée une séance en cours depuis plus de 6 heures sans série faite", async () => {
+    const sevenHoursAgo = new Date(Date.now() - 7 * 60 * 60 * 1000);
+
+    jest
+      .spyOn(workoutSessionRepository, "readCurrentSession")
+      .mockResolvedValue({
+        id: 7,
+        status: "in_progress",
+        startedAt: sevenHoursAgo.toISOString(),
+      } as never);
+    jest
+      .spyOn(workoutSessionRepository, "readCompletedSets")
+      .mockResolvedValue([] as never);
+    const completeMock = jest.spyOn(
+      workoutSessionRepository,
+      "completeSession",
+    );
+    const abandonMock = jest
+      .spyOn(workoutSessionRepository, "abandonSession")
+      .mockResolvedValue(1);
+
+    const response = await authenticatedRequest.get(
+      "/api/workout-sessions/current",
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.body).toBeNull();
+    expect(abandonMock).toHaveBeenCalledWith(7, 1);
+    expect(completeMock).not.toHaveBeenCalled();
   });
 });
 

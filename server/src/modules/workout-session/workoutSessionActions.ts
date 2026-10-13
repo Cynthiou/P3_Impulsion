@@ -79,12 +79,35 @@ const browse: RequestHandler = async (req, res, next) => {
   }
 };
 
+const SIX_HOURS = 6 * 60 * 60 * 1000;
+
 const readCurrent: RequestHandler = async (req, res, next) => {
   try {
     const userId = getCurrentUserId(req);
     const session = await workoutSessionRepository.readCurrentSession(userId);
 
-    res.json(session ?? null);
+    if (session === undefined) {
+      res.json(null);
+      return;
+    }
+
+    const startedAt = new Date(session.startedAt).getTime();
+    const sessionDuration = Date.now() - startedAt;
+
+    if (sessionDuration < SIX_HOURS) {
+      res.json(session);
+      return;
+    }
+
+    const sets = await workoutSessionRepository.readCompletedSets(session.id);
+
+    if (sets.length > 0) {
+      await workoutSessionRepository.completeSession(session.id, userId);
+    } else {
+      await workoutSessionRepository.abandonSession(session.id, userId);
+    }
+
+    res.json(null);
   } catch (err) {
     next(err);
   }
