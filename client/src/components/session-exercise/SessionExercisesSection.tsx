@@ -59,6 +59,7 @@ const SessionExercisesSection = ({
 
   const {
     secondsLeft,
+    progressBarTotal,
     startRest,
     addThirtySeconds,
     removeThirtySeconds,
@@ -280,6 +281,7 @@ const SessionExercisesSection = ({
 
       <RestTimer
         secondsLeft={secondsLeft}
+        progressBarTotal={progressBarTotal}
         onAddThirtySeconds={addThirtySeconds}
         onRemoveThirtySeconds={removeThirtySeconds}
         onSkip={skipRest}

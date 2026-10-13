@@ -6,9 +6,10 @@ const convertNowToSeconds = () => {
 };
 
 const useRestTimer = () => {
-  // L'heure actuelle et l'heure de fin du repos
+  // L'heure actuelle, l'heure de fin du repos et le total de la barre de progression
   const [now, setNow] = useState(convertNowToSeconds());
   const [restEndsAt, setRestEndsAt] = useState(0);
+  const [progressBarTotal, setProgressBarTotal] = useState(0);
 
   // L'horloge : chaque seconde, elle met à jour l'heure actuelle
   useEffect(() => {
@@ -35,6 +36,7 @@ const useRestTimer = () => {
     const currentSeconds = convertNowToSeconds();
 
     setRestEndsAt(currentSeconds + seconds);
+    setProgressBarTotal(seconds);
     setNow(currentSeconds);
   };
 
@@ -42,6 +44,7 @@ const useRestTimer = () => {
   const addThirtySeconds = () => {
     if (secondsLeft > 0) {
       setRestEndsAt(restEndsAt + 30);
+      setProgressBarTotal(progressBarTotal + 30);
     }
   };
 
@@ -59,6 +62,7 @@ const useRestTimer = () => {
 
   return {
     secondsLeft,
+    progressBarTotal,
     startRest,
     addThirtySeconds,
     removeThirtySeconds,
