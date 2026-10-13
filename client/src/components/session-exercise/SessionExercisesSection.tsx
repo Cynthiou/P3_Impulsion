@@ -5,6 +5,7 @@ import BarbellIcon from "../../assets/icons/navigation/barbell.svg?react";
 import { useMessages } from "../../contexts/MessageContext";
 import useDeleteSessionExercise from "../../hooks/session-exercise/useDeleteSessionExercise";
 import useReorderSessionExercises from "../../hooks/session-exercise/useReorderSessionExercises";
+import useRestTimer from "../../hooks/session-exercise/useRestTimer";
 import useUpdateSessionExerciseRest from "../../hooks/session-exercise/useUpdateSessionExerciseRest";
 import useErrorMessage from "../../hooks/useErrorMessage";
 import type { WorkoutSessionExercise } from "../../types/sessionExercise";
@@ -12,6 +13,7 @@ import type { WorkoutSession } from "../../types/workoutSession";
 import { formatPlural } from "../../utils/formatPlural";
 import ExerciseDetailSheet from "../exercise/ExerciseDetailSheet";
 import PreparedExerciseCard from "./PreparedExerciseCard";
+import RestTimer from "./RestTimer";
 
 type SessionExercisesSectionProps = {
   session: WorkoutSession;
@@ -55,8 +57,31 @@ const SessionExercisesSection = ({
 
   const { showMessage } = useMessages();
 
+  const {
+    secondsLeft,
+    progressBarTotal,
+    startRest,
+    addThirtySeconds,
+    removeThirtySeconds,
+    skipRest,
+  } = useRestTimer();
+
   useErrorMessage(restError);
   useErrorMessage(removeExerciseError);
+
+  const handleSetDone = (change: number, exercise: WorkoutSessionExercise) => {
+    if (onSetCompletionChange !== undefined) {
+      onSetCompletionChange(change);
+    }
+
+    if (change === 1 && exercise.restSeconds !== null) {
+      startRest(exercise.restSeconds);
+    }
+
+    if (change === -1) {
+      skipRest();
+    }
+  };
 
   const exercises = session.exercises ?? [];
   const exerciseCount = Number(session.exerciseCount);
@@ -206,7 +231,7 @@ const SessionExercisesSection = ({
                 canMoveUp={index > 0}
                 canMoveDown={index < exercises.length - 1}
                 disabled={reorderLoading || deletingExerciseId !== null}
-                canEditRest={isPrepared}
+                canEditRest={isPrepared || isInProgress}
                 restDisabled={
                   updatingExerciseId !== null || deletingExerciseId !== null
                 }
@@ -220,7 +245,9 @@ const SessionExercisesSection = ({
                 }
                 canManageSets={isPrepared || isInProgress}
                 canCompleteSets={isInProgress}
-                onSetCompletionChange={onSetCompletionChange}
+                onSetCompletionChange={(change) =>
+                  handleSetDone(change, exercise)
+                }
                 onOpenDetail={() => setSelectedExerciseId(exercise.id)}
                 isOpen={openedExerciseId === exercise.sessionExerciseId}
                 onOpen={() => setOpenedExerciseId(exercise.sessionExerciseId)}
@@ -250,6 +277,14 @@ const SessionExercisesSection = ({
       <ExerciseDetailSheet
         exerciseId={selectedExerciseId}
         onClose={() => setSelectedExerciseId(null)}
+      />
+
+      <RestTimer
+        secondsLeft={secondsLeft}
+        progressBarTotal={progressBarTotal}
+        onAddThirtySeconds={addThirtySeconds}
+        onRemoveThirtySeconds={removeThirtySeconds}
+        onSkip={skipRest}
       />
     </>
   );

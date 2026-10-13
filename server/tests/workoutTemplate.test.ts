@@ -27,7 +27,7 @@ describe("US15 - Repos d'une séance type", () => {
     jest.restoreAllMocks();
   });
 
-  test.each([60, 90, 120, 150, 180, null])(
+  test.each([30, 60, 90, 120, 150, null])(
     "accepte la durée %s",
     async (restSeconds) => {
       const updateRestMock = jest
@@ -43,7 +43,7 @@ describe("US15 - Repos d'une séance type", () => {
     },
   );
 
-  test.each([undefined, 0, 30, 61, 200, "90"])(
+  test.each([undefined, 0, 180, 61, 200, "90"])(
     "refuse la durée %s",
     async (restSeconds) => {
       const updateRestMock = jest.spyOn(

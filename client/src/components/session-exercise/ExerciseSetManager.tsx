@@ -1,5 +1,7 @@
 import { useState } from "react";
 import PlusIcon from "../../assets/icons/actions/plus.svg?react";
+import RotateIcon from "../../assets/icons/actions/rotate.svg?react";
+import CircleCheckIcon from "../../assets/icons/etats/circle-check.svg?react";
 import { useMessages } from "../../contexts/MessageContext";
 import useExerciseSets from "../../hooks/session-exercise/useExerciseSets";
 import type {
@@ -237,7 +239,19 @@ function ExerciseSetRow({
   return (
     <>
       <tr className="border-base-300 border-t">
-        <td className="py-2.5 pr-2 text-base-content/60">{set.setNumber}</td>
+        <td className="py-2.5 pr-2 text-base-content/60">
+          {set.isCompleted ? (
+            <>
+              <CircleCheckIcon
+                aria-hidden="true"
+                className="size-5 text-success"
+              />
+              <span className="sr-only">Série {set.setNumber} faite</span>
+            </>
+          ) : (
+            set.setNumber
+          )}
+        </td>
         <td className="py-2.5 pr-2">
           <input
             type="number"
@@ -280,19 +294,24 @@ function ExerciseSetRow({
             onClick={handleSave}
             disabled={updating}
             aria-pressed={canComplete ? set.isCompleted : undefined}
+            aria-label={set.isCompleted ? "Annuler" : undefined}
             className={`rounded-md border px-2.5 py-1.5 font-semibold text-xs transition-colors disabled:cursor-wait disabled:opacity-60 ${
               set.isCompleted
-                ? "border-base-content/30 bg-base-100 text-base-content hover:border-error hover:text-error"
-                : "border-success bg-success text-success-content hover:opacity-90"
+                ? "border-transparent bg-transparent text-info hover:text-error"
+                : "border-secondary bg-secondary text-secondary-content hover:opacity-90"
             }`}
           >
-            {updating
-              ? "..."
-              : canComplete
-                ? set.isCompleted
-                  ? "Annuler"
-                  : "Fait"
-                : "Enregistrer"}
+            {updating ? (
+              "..."
+            ) : canComplete ? (
+              set.isCompleted ? (
+                <RotateIcon aria-hidden="true" className="size-5" />
+              ) : (
+                "Fait"
+              )
+            ) : (
+              "Enregistrer"
+            )}
           </button>
         </td>
       </tr>
@@ -367,7 +386,7 @@ function ExerciseSetManager({
                 Durée
               </th>
               <th scope="col" className="py-2 text-right font-semibold">
-                {canComplete ? "État" : "Action"}
+                <span className="sr-only">Actions</span>
               </th>
             </tr>
           </thead>
