@@ -224,4 +224,61 @@ describe("US18 - Marquer une série comme réalisée", () => {
 
     expect(response.status).toBe(401);
   });
+
+  test("accepte une modification qui ne change aucune valeur", async () => {
+    jest.spyOn(exerciseSetRepository, "readForUser").mockResolvedValue({
+      id: 12,
+      setNumber: 2,
+      repetitions: 10,
+      weightKg: 42.5,
+      durationSeconds: null,
+      isCompleted: false,
+      sessionStatus: "in_progress",
+    });
+    const updateMock = jest.spyOn(exerciseSetRepository, "update");
+
+    const response = await authenticatedRequest
+      .patch("/api/exercise-sets/12")
+      .send({
+        repetitions: 10,
+        weightKg: 42.5,
+        durationSeconds: null,
+        isCompleted: false,
+      });
+
+    expect(response.status).toBe(200);
+    expect(updateMock).not.toHaveBeenCalled();
+  });
+
+  test("refuse la modification si la séance a changé de statut entre-temps", async () => {
+    jest.spyOn(exerciseSetRepository, "readForUser").mockResolvedValue({
+      id: 12,
+      setNumber: 2,
+      repetitions: 10,
+      weightKg: 42.5,
+      durationSeconds: null,
+      isCompleted: false,
+      sessionStatus: "in_progress",
+    });
+    const updateMock = jest
+      .spyOn(exerciseSetRepository, "update")
+      .mockResolvedValue(0);
+
+    const response = await authenticatedRequest
+      .patch("/api/exercise-sets/12")
+      .send({
+        repetitions: 12,
+        weightKg: 42.5,
+        durationSeconds: null,
+        isCompleted: false,
+      });
+
+    expect(response.status).toBe(409);
+    expect(updateMock).toHaveBeenCalledWith(12, 1, {
+      repetitions: 12,
+      weightKg: 42.5,
+      durationSeconds: null,
+      isCompleted: false,
+    });
+  });
 });
