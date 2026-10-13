@@ -35,7 +35,19 @@ const SessionExercisesSection = ({
   const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(
     null,
   );
-  const [openedExerciseId, setOpenedExerciseId] = useState<number | null>(null);
+  let firstExerciseId = null;
+
+  if (
+    isInProgress &&
+    session.exercises !== undefined &&
+    session.exercises.length > 0
+  ) {
+    firstExerciseId = session.exercises[0].sessionExerciseId;
+  }
+
+  const [openedExerciseId, setOpenedExerciseId] = useState<number | null>(
+    firstExerciseId,
+  );
 
   const {
     reorderSessionExercises,
